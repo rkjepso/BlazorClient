@@ -16,7 +16,7 @@ namespace WebGloser.Model
         public string ToWordAns { get; set; }
         public bool IsCorrect { get; set; }
 
-        // For AI usage
+        // For AI usage level.
         public int Level { get; set; }
     }
 }
