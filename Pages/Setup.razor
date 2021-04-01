@@ -1,0 +1,165 @@
+﻿@page "/Setup"
+
+@using BlazorGloser.Services
+
+@inject NavigationManager NavigationManager
+
+<div class="card">
+    <div class="setup_gloser" style="padding:10px;background-color:lavender;border:dotted">
+
+        <span class="radio_gloser">
+            @foreach (var choice in Enum.GetValues(typeof(LangToFrom)).Cast<LangToFrom>())
+            {
+                <label>
+                    <input name="language" type="radio"
+                           value="@choice"
+                           checked="@(dt.LangToFrom == choice)"
+                           @onchange="@(() => { OnLangChoise(choice) ;})">
+                    @choice.ToString()
+                </label>
+            }
+        </span>
+        <span class="span_gloser">
+            <label for="order">Order:</label>
+            <select name="order" id="order" @bind="@dt.Order">
+                <option value=@Order.Sequental>Sequental</option>
+                <option value=@Order.Random>Random</option>
+                <option value=@Order.Artif_Int>Artif.Int.</option>
+            </select>
+        </span>
+
+        <span class="span_gloser">
+            <label for="bach">Batch:</label>
+            <select name="batch" id="batch" @bind="@dt.NumBatch">
+                @foreach (var x in new[] { 1, 2, 3, 4, 5, 6, 7, 8, 10, 20 })
+                {
+                    <option value=@x>@x</option>
+                }
+            </select>
+        </span>
+
+        <span class="span_gloser">
+            <label for="words">Dictionary:</label>
+            <select name="words" id="words" @bind="@dt.NTotal">
+                @foreach (var x in new[] { 20, 50, 100, 200, 300, 500, 800 })
+                {
+                    <option value=@x>@x Most Common</option>
+                }
+            </select>
+        </span>
+
+        <span class="span_gloser">
+            <label for="mode">Mode:</label>
+            <select name="mode" id="mode" @bind="@dt.Mode">
+                <option value=@Mode.OneByOne>One by one (t)</option>
+                <option value=@Mode.All_Time>All (t)</option>
+                <option value=@Mode.All_Now>All now</option>
+                <option value=@Mode.All_Man>All man</option>
+            </select>
+        </span>
+        <span id="_idTime" class="span_gloser" hidden="@HideIdTime">
+            <label for="dt.SecThink">Think:</label>
+            <select name="dt.SecThink" id="dt.SecThink" @bind="@dt.SecThink">
+                @foreach (var x in new[] {500,1000, 1500,2000,3000,4000,6000,8000})
+                {
+                    <option value=@x>@x ms</option>
+                }
+            </select>
+
+            <span id="_idAutoNext">
+                <label for="autonext">Next:</label>
+                <select name="autonext" id="autonext" @bind="@dt.Auto">
+                    <option value=@Auto.Manual>Manual Next</option>
+                    <option value=@Auto.Auto1s>Wait 1s</option>
+                    <option value=@Auto.Auto2s>Wait 2s</option>
+                    <option value=@Auto.Auto3s>Wait 3s</option>
+                    <option value=@Auto.Auto5s>Wait 5s</option>
+                </select>
+            </span>
+
+        </span>
+    </div>
+</div>
+
+<br />
+<button class="btn-gloserSetup" @onclick="OnSaveAndGloser">Save, Goto Gloser</button>
+<button class="btn-gloserSetup" @onclick="OnSave">Save</button>
+<h3>@strMsg</h3>
+
+@code {
+    string strMsg { get;set;} = "";
+
+    [Inject]
+    protected ILocalStorageService Storage { get; set; }
+
+
+    private bool HideIdTime { get => (dt.Mode == Mode.All_Man || dt.Mode == Mode.All_Now); }
+
+    // [Parameter]
+    // private Gloser g = Gloser.GetGloser();
+    // private static Data dt = Gloser.GetData();
+    static Data dt = Gloser.GetData();
+
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+
+    //[Parameter]
+    //public EventCallback<MouseEventArgs> OnClickCallback { get; set; }
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        await LoadParams();
+        StateHasChanged();
+
+    }
+
+    public async Task LoadParams()
+    {
+        try
+        {
+            dt = await Storage.GetItem<Data>("__gloser");
+            if (dt.Equals(default(Data)))
+                dt.Default();
+        }
+        catch (Exception)
+        {
+            dt.Default();
+            strMsg = "First time - using default values";
+        }
+
+    }
+
+    private void OnLangChoise(LangToFrom lang)
+    {
+        dt.LangToFrom = lang;
+
+    }
+
+    private async void OnSave()
+    {
+        Data tmp = dt;
+
+        Storage.SetItem("__gloser", tmp);
+        await Task.Delay(100);
+        Data tmp2 = await Storage.GetItem<Data>("__gloser");
+
+        if (tmp2.Equals(tmp))
+            strMsg = "Save Successfull";
+        else
+            strMsg = "Save Failed";
+        StateHasChanged();
+    }
+
+    private void OnSaveAndGloser()
+    {
+        OnSave();
+        NavigationManager.NavigateTo("Gloser");
+    }
+}

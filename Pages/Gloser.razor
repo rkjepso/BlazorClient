@@ -1,0 +1,398 @@
+﻿@page "/gloser"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+@using WebGloser.Model;
+@using System.Timers;
+@using BlazorClient.Services;
+<body style="font-size:14px;background-color:aliceblue">
+
+
+
+    <div class="div_gloser">
+        <span hidden ="@IsRunning" class="radio_gloser">
+            @foreach (var choice in Enum.GetValues(typeof(LangToFrom)).Cast<LangToFrom>())
+            {
+                <label>
+                    <input name="language" type="radio"
+                           value="@choice"
+                           checked="@(dt.LangToFrom == choice)"
+                           @onchange="@(() => { OnLangChoise(choice) ;})">
+                    @choice.ToString()
+                </label>
+            }
+        </span>
+
+        <button class="btn-gloser" hidden="@IsRunning" id="btnOnStartBatch" name="btnOnStartBatch" @onclick="OnStartBatch">Start</button>
+        <button class="btn-gloser" id="btnOnNextBatch" @onclick="OnNextBatch">Next</button>
+        <button hidden="@(HideNextStop)" class="btn-gloser" id="_idAutoNextStop" @onclick=@(x=>OnAutoNextStop())>Stop</button>
+        <button class="btn-gloser_long" hidden="@IsRunning" @onclick="OnSetup">Setup></button>
+        <button class="btn-warning" @onclick="ClearBuffer">Clear Buffer</button>
+    </div>
+
+
+    @if (lstWords == null)
+    {
+        <p><em>Loading Gloser ... </em></p>
+    }
+    else
+    {
+        <table class="blueTable">
+            <thead>
+                <tr>
+                    <th style="width:40%"> @StrFromLang</th>
+                    <th style="width:40%">
+                        @if (dt.Mode == Mode.All_Man)
+                        {
+                            <button class="btn-gloser" @onclick="@(()=> @OnShowAll())">@StrToLang</button>
+                        }
+                        else
+                        {
+                            @StrToLang
+                        }
+                    </th>
+                    <th hidden="@(SingleMode)">
+                        <button class="btn-gloser" @onclick="@(x=> @OnCorrAll())"> @(StrAllOk) </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var w in lstBatch)
+                    {
+                        int cz = dt.NumBatch switch { 1 => 28, 2 or 3 or 4 =>22, 5 or 6 => 18 ,_ => 14 };
+                        <tr style=@("font-size:"+(cz).ToString()+"px")>
+                            <td>@w.FromWord</td>
+                            <td class=@(ColCorrect(w)) @onclick="@(()=> @OnCorr(w))"> @w.ToWordAns</td>
+                            <td hidde="@(SingleMode)">
+                                <input type="checkbox" id="w.Correct" @bind="w.IsCorrect" />
+                                <label for="@w.IsCorrect">OK</label>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+        </table>
+    }
+    <br />
+    @{if (dt.Order == Order.Sequental)
+        {
+            <p>Correct: @NCorrect of @(NBMax) (Total:@dt.NTotal) - (Ver: @__version. AI for gloser)</p>
+        }
+        else if (dt.Order == Order.Random)
+        {
+            <p>Correct: @(randCorr+NBatchCorrect) of @randTot - (Ver: @__version. AI for gloser)</p>
+        }
+    }
+    <h1>@strMsg</h1>
+</body>
+
+
+
+@code {
+    string strMsg = "";
+    string __version = "1.3 : " + DateTime.Now.ToString();
+
+    private List<TWord> lstWords;
+    private List<TWord> lstBatch = new List<TWord>();
+
+    private static Timer timerM;
+    private static TimerMsg timerMsg;
+    private int msInterval = 500;
+    private int sec;
+
+    private int iWord = 0;
+    private int iBatch = 0;
+
+    private int randTot = 0;
+    private int randCorr = 0;
+
+    int NBMin { get => iWord + 1; }
+    int NBMax { get => Math.Min(NBMin + dt.NumBatch - 1, dt.NTotal); }
+
+    private static Gloser __this = null;
+    public static Gloser GetGloser() => __this;
+
+    public bool IsRunning { get => (timerM?.Enabled ?? false) || (timerMsg?.Enabled ?? false); }
+    public bool HideIdTime { get => (dt.Mode == Mode.All_Man || dt.Mode == Mode.All_Now); }
+    public bool HideNextStop { get => dt.Auto == Auto.Manual; }
+    public bool SingleMode { get => dt.NumBatch == 1; }
+    public static bool X { get => true == true; }
+    private void OnSetup() => NavigationManager?.NavigateTo("Setup");
+   
+
+
+    private void OnLangChoise(LangToFrom ? choise=null)
+    {
+        dt.LangToFrom = choise ?? dt.LangToFrom;
+        if (dt.LangToFrom == LangToFrom.SpaEng)
+            lstWords?.ForEach(o => { o.ToWord = o.English; o.FromWord = o.Spanish; });
+        if (dt.LangToFrom == LangToFrom.EngSpa)
+            lstWords?.ForEach(o => { o.ToWord = o.Spanish; o.FromWord = o.English; });
+        //Serialize();
+    }
+
+    // static readonly string _TS = "RecordV1.";
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+        __this = this;
+        TWord[] aWord = null;
+        try
+        {
+            LoadParams();
+            aWord = await AccountService.GetDefaultDictionary();
+            lstWords = aWord?.ToList<TWord>();
+
+            OnLangChoise();
+            if (AccountService.IsServerDown)
+                strMsg = "No contact with server, Using Default Dictionary";
+
+        }
+        catch (Exception e)
+        {
+            strMsg = "Error - unable to connect to the Server : " + e.Message;
+            OnLangChoise();
+        }
+
+
+        timerM = new Timer();
+        timerM.Elapsed += new ElapsedEventHandler(OnTimer2);
+        timerM.Interval = msInterval;
+
+        timerMsg = new TimerMsg();
+        timerMsg.Elapsed += new ElapsedEventHandler(Timer_Msg);
+
+        StateHasChanged();
+    }
+
+    //public async void Serialize() => await Task.Run( () => SaveParams() );
+
+    private class TimerMsg : Timer
+    {
+        public enum Msg { Start, Next };
+        public Msg _msg;
+        public void PostOnMsg(Msg msg)
+        {
+            _msg = msg;
+            Interval = msg == Msg.Start ? 10 : (int)Gloser.GetData().Auto;
+            Start();
+        }
+    }
+
+    void Timer_Msg(object o, ElapsedEventArgs e)
+    {
+        timerMsg.Stop();
+        if (timerMsg._msg == TimerMsg.Msg.Next)
+            OnNextBatch();
+        if (timerMsg._msg == TimerMsg.Msg.Start)
+            OnStartBatch();
+    }
+
+    void Reset()
+    {
+        iWord = 0;
+        iBatch = 0;
+        _bAllOk = true;
+        lstWords.ForEach(o => o.ToWordAns = "");
+        lstWords.ForEach(o => o.IsCorrect = false);
+        timerM.Stop();
+    }
+
+    void OnStartBatch()
+    {
+        Reset();
+
+        if (dt.Mode == Mode.OneByOne || dt.Mode == Mode.All_Time)
+            timerM.Start();
+
+        if (dt.Order == Order.Random)
+        {
+            randTot = dt.NumBatch;
+            randCorr = 0;
+        }
+
+        sec = dt.SecThink;
+        CopyToBatch();
+        if (dt.Mode == Mode.All_Now)
+            ShowAll();
+        StateHasChanged();
+    }
+
+
+
+    void OnNextBatch()
+    {
+        _bAllOk = true;
+        if (timerM.Enabled)
+            timerM.Stop();
+
+        if (dt.Order == Order.Sequental)
+        {
+            int iNew = Math.Min(iWord + dt.NumBatch, dt.NTotal - 1);
+            if (iNew == dt.NTotal - 1)
+                return;
+            iWord = iNew;
+        }
+
+        if (dt.Order == Order.Random)
+        {
+            randTot += dt.NumBatch;
+            randCorr += NBatchCorrect;
+            lstWords.ForEach(o => o.IsCorrect = false);
+        }
+
+        iBatch = 0;
+        CopyToBatch();
+        sec = dt.SecThink;
+
+        if (dt.Mode == Mode.All_Now)
+            ShowAll();
+        if (dt.Mode == Mode.OneByOne || dt.Mode == Mode.All_Time)
+            timerM.Start(); //PostOnMsg(TimerMsg.Msg.Next);
+        StateHasChanged();
+    }
+
+
+    void CopyToBatch()
+    {
+        lstBatch = new List<TWord>();
+        lstWords.ForEach(o => o.ToWordAns = "");
+        if (dt.Order == Order.Sequental)
+        {
+            int iMax = Math.Min(dt.NTotal, iWord + dt.NumBatch);
+            foreach (var o in lstWords.Where(o => o.ID > iWord && o.ID <= iMax))
+                lstBatch.Add(o);
+        }
+        if (dt.Order == Order.Random)
+        {
+            lstBatch = new List<TWord>();
+            Random r = new Random();
+            while (lstBatch?.Count < dt.NumBatch)
+            {
+                int idx = r.Next(dt.NTotal - 1);
+                TWord w = lstWords[idx];
+                if (!lstBatch.Exists(o => o.FromWord == w.FromWord))
+                    lstBatch.Add(w);
+            }
+        }
+
+    }
+
+    void OnTimer2(object sender, ElapsedEventArgs e)
+    {
+        if (iBatch >= dt.NumBatch)
+            return;
+        if (dt.Mode == Mode.OneByOne)
+            OneAtATime();
+        if (dt.Mode == Mode.All_Time)
+            ShowAllTime();
+        StateHasChanged();
+    }
+
+    void OneAtATime()
+    {
+        sec -= msInterval;
+        if (sec > 0)
+        {
+            lstBatch[iBatch].ToWordAns = sec.ToString();
+            return;
+        }
+        sec = dt.SecThink;
+        lstBatch[iBatch].ToWordAns = lstBatch[iBatch].ToWord;
+        iBatch++;
+        if (iBatch >= dt.NumBatch)
+        {
+            timerM.Stop();
+            if (dt.Auto == Auto.Manual)
+                return;
+            timerMsg.PostOnMsg(TimerMsg.Msg.Next);
+        }
+    }
+
+    void ShowAllTime()
+    {
+        sec -= msInterval;
+        if (sec > 0)
+        {
+            lstBatch.ForEach(o => o.ToWordAns = sec.ToString());
+            iBatch = 0;
+            return;
+        }
+        ShowAll();
+        sec = dt.SecThink;
+        timerM.Stop();
+        if (dt.Auto == Auto.Manual)
+            return;
+        timerMsg.PostOnMsg(TimerMsg.Msg.Next);
+    }
+
+    public void OnAutoNextStop()
+    {
+        timerMsg.Stop();
+        timerM.Stop();
+        strMsg = "Stopped timers !";
+    }
+
+    void OnShowAll()
+    {
+        ShowAll();
+    }
+    void ShowAll()
+    {
+        lstBatch.ForEach(o => o.ToWordAns = o.ToWord);
+    }
+
+    public int NBatchCorrect
+    {
+        get => lstBatch?.Where(o => o.IsCorrect).Count() ?? 0;
+    }
+
+    public int NCorrect
+    {
+        get => lstWords?.Where(o => o.IsCorrect).Count() ?? 0;
+    }
+
+    static private bool _bAllOk = true;
+    public void OnCorrAll()
+    {
+        if (lstBatch.Count(o => o.ToWordAns.Length > 0) < dt.NumBatch)
+            return;
+        lstBatch.ForEach(o => o.IsCorrect = _bAllOk);
+        _bAllOk = !_bAllOk;
+    }
+
+    public string StrAllOk { get => _bAllOk ? "All Ok" : "Non Ok"; }
+
+    public void OnCorr(TWord w)
+    {
+        int tmp;
+        if (w.ToWordAns.Length == 0)
+            return;
+
+        if (int.TryParse(w.ToWordAns, out tmp) == false)
+            w.IsCorrect = !w.IsCorrect;
+    }
+
+    public string ColCorrect(TWord w) => w.IsCorrect ? "word_correct" : "";
+    //int _nNextButtons = 5;
+    //private int nNextButtons
+    //{
+    //    get => dt.Order == Order.Sequental ? _nNextButtons : 0;
+    //}
+
+    public void ClearBuffer()
+    {
+        Storage.RemoveItem("__gloser");
+    }
+
+
+}
+
+
+

@@ -1,0 +1,83 @@
+﻿@page "/register"
+
+@inject NavigationManager NavigationManager
+@using WebGloser.Model;
+@using BlazorClient.Services;
+
+<div class="card">
+    <h4 class="card-header">Register</h4>
+    <div class="card-body">
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>First Name</label>
+                <InputText @bind-Value="model.FirstName" class="form-control" />
+                <ValidationMessage For="@(() => model.FirstName)" />
+            </div>
+            <div class="form-group">
+                <label>Last Name</label>
+                <InputText @bind-Value="model.LastName" class="form-control" />
+                <ValidationMessage For="@(() => model.LastName)" />
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <InputText @bind-Value="model.Username" class="form-control" />
+                <ValidationMessage For="@(() => model.Username)" />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <InputText @bind-Value="model.Password" type="password" class="form-control" />
+                <ValidationMessage For="@(() => model.Password)" />
+            </div>
+            <button disabled="@loading" class="btn btn-primary">
+                @if (loading)
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+                Register
+            </button>
+            <NavLink href="login" class="btn btn-link">@(Registered ? "Login" : "Cancel")</NavLink>
+        </EditForm>
+    </div>
+</div>
+
+<h1>@strMsg</h1>
+
+@code {
+    private WebGloser.Model.AddUser model = new WebGloser.Model.AddUser();
+    private bool loading;
+    private string strMsg;
+    private bool Registered = false;
+
+    private async void OnValidSubmit()
+    {
+        // reset alerts on submit
+        //AlertService.Clear();
+
+        loading = true;
+        try
+        {
+            //await AccountService.Register(model);
+            //AlertService.Success("Registration successful", keepAfterRouteChange: true);
+            // 
+
+            UserRecord user = await AccountService.Register(model);
+            if (user == null)
+                throw new Exception("Unknown user Error");
+            loading = false;
+            Registered = true;
+            strMsg = "Successfully Registered User : " + user.Username;
+            //NavigationManager.NavigateTo("login");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            //AlertService.Error(ex.Message);
+            loading = false;
+            strMsg = await AccountService.GetErrorString();
+            if (strMsg.Length == 0)
+                strMsg = ex.Message;
+            StateHasChanged();
+        }
+    }
+}

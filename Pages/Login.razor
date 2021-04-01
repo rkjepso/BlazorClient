@@ -1,0 +1,79 @@
+﻿@page "/login"
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@using BlazorClient.Services;
+
+@using WebGloser.Model;
+
+<div class="card">
+    <h4 class="card-header">@StrLogon</h4>
+    <div class="card-body">
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>Username</label>
+                <InputText @bind-Value="model.Username" class="form-control" />
+                <ValidationMessage For="@(() => model.Username)" />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <InputText @bind-Value="model.Password" type="password" class="form-control" />
+                <ValidationMessage For="@(() => model.Password)" />
+            </div>
+            <button disabled="@(loading || Program.IsLoggedIn)" class="btn btn-primary">
+                @if (loading)
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+                Login
+            </button>
+            @if (Program.IsLoggedIn)
+            {
+                <NavLink href="/" class="btn btn-link">Home</NavLink>
+            }
+            else
+            {
+                <NavLink href="register" class="btn btn-link">Register</NavLink>
+            }
+        </EditForm>
+    </div>
+</div>
+
+<h3>@StrError</h3>
+
+@code {
+    private WebGloser.Model.Login model = new WebGloser.Model.Login();
+    private bool loading;
+    public string StrError { get; set;}
+    private string StrLogon { get {
+            if (Program.IsLoggedIn)
+                return model.Username + " is Logged in";
+
+            return model.Username + " is Logged out";
+        } }
+
+    private async void OnValidSubmit()
+    {
+        // reset alerts on submit
+        //      AlertService.Clear();
+        loading = true;
+        try
+        {
+            UserRecord user = await AccountService.DoLogin(model);
+            if (user == null)
+                throw new Exception("Unknown user Error");
+            loading = false;
+            Program.IsLoggedIn = true;
+            NavMenu.GetNavMenu().DoStateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            loading = false;
+            StrError =  await AccountService.GetErrorString();
+            if (StrError.Length == 0)
+                StrError = ex.Message;
+        }
+        StateHasChanged();
+    }
+}

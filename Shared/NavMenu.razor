@@ -1,0 +1,91 @@
+﻿<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">BlazorClient</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+
+
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="gloser">
+                <span class="oi oi-list-rich" aria-hidden="true"></span>Gloser
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Setup">
+                <span class="oi oi-list-rich" aria-hidden="true"></span>Setup
+            </NavLink>
+        </li>
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Login" hidden="@IsHidden">
+                <span class="oi oi-list-rich" aria-hidden="true"></span>Login
+            </NavLink>
+        </li>
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="Dictionaries">
+                <span class="oi oi-list-rich" aria-hidden="true"></span>Dictionaries
+            </NavLink>
+        </li>
+
+        @*<li class="nav-item px-3">
+            <NavLink class="nav-link" href="Logoff">
+                <span class="oi oi-plus" aria-hidden="true"></span>Logoff
+            </NavLink>
+        </li>*@
+        @*<li class="nav-item px-3">
+            <NavLink class="nav-link" href="Counter">
+                <span class="oi oi-list-rich" aria-hidden="true"></span>Counter&Test
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="fetchdata">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            </NavLink>
+        </li>*@
+    </ul>
+</div>
+
+@code {
+
+    static NavMenu __this = null;
+    static public NavMenu GetNavMenu()
+    {
+        return __this;
+    }
+
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private bool IsHidden {
+        get
+        {
+            __this = this;
+            // StateHasChanged();
+            return Program.IsLoggedIn;
+        }
+    }
+
+    public void DoStateHasChanged()
+    {
+        StateHasChanged();
+    }
+
+}
