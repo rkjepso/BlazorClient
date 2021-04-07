@@ -12,7 +12,7 @@ namespace BlazorClient.Pages
     public enum LangToFrom  { EngSpa, SpaEng };
     public enum Order       { Sequental, Random, Artif_Int };
     public enum Auto        { Auto500ms = 500, Auto1s = 1000, Auto2s = 2000, Auto3s = 3000, Auto5s = 5000, Manual = 0 };
-    public enum Mode        { OneByOne, All_Time, All_Now, All_Man };
+    public enum Mode        { Scrolling, OneByOne, All_Time, All_Now, All_Man };
 
     // State variables 
     [Serializable]
@@ -96,18 +96,3 @@ namespace BlazorClient.Pages
 }
 
 
-//dt.Mode = TGetCookieValue(nameof(dt.Mode), Mode.OneByOne);
-//dt.LangToFrom = TGetCookieValue(nameof(dt.LangToFrom), LangToFrom.EngSpa);
-//dt.Order = TGetCookieValue(nameof(dt.Order), Order.Sequental);
-//dt.Auto = TGetCookieValue(nameof(dt.Auto), Auto.Auto1s);
-//dt.SecThink = GetCookieValue(nameof(dt.SecThink), secThinkDef);
-//dt.NumBatch = GetCookieValue(nameof(dt.NumBatch), numBatchDef);
-//dt.NTotal = GetCookieValue(nameof(dt.NTotal), 100);
-
-//SetCookieValue(nameof(dt.Mode), ((int)dt.Mode).ToString());
-//SetCookieValue(nameof(dt.LangToFrom), ((int)dt.LangToFrom).ToString());
-//SetCookieValue(nameof(dt.Order), ((int)dt.Order).ToString());
-//SetCookieValue(nameof(dt.Auto), ((int)dt.Auto).ToString());
-//SetCookieValue(nameof(dt.SecThink), dt.SecThink.ToString());
-//SetCookieValue(nameof(dt.NumBatch), dt.NumBatch.ToString());
-//SetCookieValue(nameof(dt.NTotal), dt.NTotal.ToString());

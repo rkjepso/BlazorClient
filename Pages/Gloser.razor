@@ -7,28 +7,12 @@
 @using System.Timers;
 @using BlazorClient.Services;
 <body style="font-size:14px;background-color:aliceblue">
-
-
-
     <div class="div_gloser">
-        <span hidden ="@IsRunning" class="radio_gloser">
-            @foreach (var choice in Enum.GetValues(typeof(LangToFrom)).Cast<LangToFrom>())
-            {
-                <label>
-                    <input name="language" type="radio"
-                           value="@choice"
-                           checked="@(dt.LangToFrom == choice)"
-                           @onchange="@(() => { OnLangChoise(choice) ;})">
-                    @choice.ToString()
-                </label>
-            }
-        </span>
-
         <button class="btn-gloser" hidden="@IsRunning" id="btnOnStartBatch" name="btnOnStartBatch" @onclick="OnStartBatch">Start</button>
         <button class="btn-gloser" id="btnOnNextBatch" @onclick="OnNextBatch">Next</button>
         <button hidden="@(HideNextStop)" class="btn-gloser" id="_idAutoNextStop" @onclick=@(x=>OnAutoNextStop())>Stop</button>
         <button class="btn-gloser_long" hidden="@IsRunning" @onclick="OnSetup">Setup></button>
-        <button class="btn-warning" @onclick="ClearBuffer">Clear Buffer</button>
+        @*<button class="btn-warning" @onclick="ClearBuffer">Clear Buffer</button>*@
     </div>
 
 
@@ -61,11 +45,11 @@
                 @{
                     foreach (var w in lstBatch)
                     {
-                        int cz = dt.NumBatch switch { 1 => 24, 2 or 3 or 4 =>20, 5 or 6 => 18 ,_ => 14 };
+                        int cz = FontSize();
                         <tr style=@("font-size:"+(cz).ToString()+"px")>
                             <td>@w.FromWord</td>
                             <td class=@(ColCorrect(w)) @onclick="@(()=> @OnCorr(w))"> @w.ToWordAns</td>
-                            <td hidde="@(SingleMode)">
+                            <td hidden="@(SingleMode)">
                                 <input type="checkbox" id="w.Correct" @bind="w.IsCorrect" />
                                 <label for="@w.IsCorrect">OK</label>
                             </td>
@@ -74,28 +58,18 @@
                 }
             </tbody>
             <tfoot>
-
             </tfoot>
         </table>
     }
     <br />
-    @{if (dt.Order == Order.Sequental)
-        {
-            <p>Correct: @NCorrect of @(NBMax) (Total:@dt.NTotal) - (Ver: @__version. AI for gloser)</p>
-        }
-        else if (dt.Order == Order.Random)
-        {
-            <p>Correct: @(randCorr+NBatchCorrect) of @randTot - (Ver: @__version. AI for gloser)</p>
-        }
-    }
+    <p>@CorrectWordInfo</p>
     <p style="color:brown;font-style:italic">@strMsg</p>
 </body>
 
-
-
 @code {
-    string strMsg = "";
+
     string __version = "1.6 : " + DateTime.Now.ToString();
+    string strMsg    = "";
 
     private List<TWord> lstWords;
     private List<TWord> lstBatch = new List<TWord>();
@@ -117,23 +91,46 @@
     private static Gloser __this = null;
     public static Gloser GetGloser() => __this;
 
-    public bool IsRunning { get => (timerM?.Enabled ?? false) || (timerMsg?.Enabled ?? false); }
-    public bool HideIdTime { get => (dt.Mode == Mode.All_Man || dt.Mode == Mode.All_Now); }
-    public bool HideNextStop { get => dt.Auto == Auto.Manual; }
-    public bool SingleMode { get => dt.NumBatch == 1; }
-    public static bool X { get => true == true; }
+    public bool IsRunning       { get => (timerM?.Enabled ?? false) || (timerMsg?.Enabled ?? false); }
+    public bool HideIdTime      { get => (dt.Mode == Mode.All_Man || dt.Mode == Mode.All_Now); }
+    public bool HideNextStop    { get => dt.Auto == Auto.Manual; }
+    public bool SingleMode      { get => dt.NumBatch == 1; }
+    public static bool X        { get => true == true; }
     private void OnSetup() => NavigationManager?.NavigateTo("Setup");
-   
+    public string StrAllOk { get => _bAllOk ? "All Ok" : "Non Ok"; }
 
+    private int FontSize() =>
+    dt.NumBatch switch
+    {
+        1 => 24,
+        2 or 3 or 4 => 20,
+        5 or 6 => 18,
+        _ => 14
+    };
 
-    private void OnLangChoise(LangToFrom ? choise=null)
+    private string CorrectWordInfo
+    {
+        get
+        {
+            if (dt.Order == Order.Sequental)
+            {
+                return string.Format("Correct {0} of {1}. Total : {2}", NCorrect, NBMax, dt.NTotal);
+            }
+            else if (dt.Order == Order.Random)
+            {
+                return string.Format("Correct {0} of Total : {1}", (randCorr + NBatchCorrect), randCorr);
+            }
+            return "";
+        }
+    }
+
+    private void OnLangChoise(LangToFrom? choise = null)
     {
         dt.LangToFrom = choise ?? dt.LangToFrom;
         if (dt.LangToFrom == LangToFrom.SpaEng)
             lstWords?.ForEach(o => { o.ToWord = o.English; o.FromWord = o.Spanish; });
         if (dt.LangToFrom == LangToFrom.EngSpa)
             lstWords?.ForEach(o => { o.ToWord = o.Spanish; o.FromWord = o.English; });
-        //Serialize();
     }
 
     // static readonly string _TS = "RecordV1.";
@@ -141,8 +138,10 @@
     {
         if (!firstRender)
             return;
+
         __this = this;
         TWord[] aWord = null;
+        strMsg = __version;
         try
         {
             LoadParams();
@@ -160,7 +159,6 @@
             OnLangChoise();
         }
 
-
         timerM = new Timer();
         timerM.Elapsed += new ElapsedEventHandler(OnTimer2);
         timerM.Interval = msInterval;
@@ -170,8 +168,6 @@
 
         StateHasChanged();
     }
-
-    //public async void Serialize() => await Task.Run( () => SaveParams() );
 
     private class TimerMsg : Timer
     {
@@ -208,7 +204,9 @@
     {
         Reset();
 
-        if (dt.Mode == Mode.OneByOne || dt.Mode == Mode.All_Time)
+        if (dt.Mode == Mode.OneByOne ||
+            dt.Mode == Mode.Scrolling ||
+            dt.Mode == Mode.All_Time)
             timerM.Start();
 
         if (dt.Order == Order.Random)
@@ -223,8 +221,6 @@
             ShowAll();
         StateHasChanged();
     }
-
-
 
     void OnNextBatch()
     {
@@ -253,7 +249,7 @@
 
         if (dt.Mode == Mode.All_Now)
             ShowAll();
-        if (dt.Mode == Mode.OneByOne || dt.Mode == Mode.All_Time)
+        if (dt.Mode == Mode.OneByOne || dt.Mode == Mode.Scrolling || dt.Mode == Mode.All_Time)
             timerM.Start(); //PostOnMsg(TimerMsg.Msg.Next);
         StateHasChanged();
     }
@@ -288,7 +284,7 @@
     {
         if (iBatch >= dt.NumBatch)
             return;
-        if (dt.Mode == Mode.OneByOne)
+        if (dt.Mode == Mode.OneByOne || dt.Mode == Mode.Scrolling)
             OneAtATime();
         if (dt.Mode == Mode.All_Time)
             ShowAllTime();
@@ -353,21 +349,13 @@
         get => lstBatch?.Where(o => o.IsCorrect).Count() ?? 0;
     }
 
-    public int NCorrect
+    public int NCorrect 
     {
         get => lstWords?.Where(o => o.IsCorrect).Count() ?? 0;
     }
 
     static private bool _bAllOk = true;
-    public void OnCorrAll()
-    {
-        if (lstBatch.Count(o => o.ToWordAns.Length > 0) < dt.NumBatch)
-            return;
-        lstBatch.ForEach(o => o.IsCorrect = _bAllOk);
-        _bAllOk = !_bAllOk;
-    }
-
-    public string StrAllOk { get => _bAllOk ? "All Ok" : "Non Ok"; }
+    public void OnCorrAll() => lstBatch.ForEach(o => (o.IsCorrect, _bAllOk) = (_bAllOk, !_bAllOk) );
 
     public void OnCorr(TWord w)
     {
@@ -380,18 +368,9 @@
     }
 
     public string ColCorrect(TWord w) => w.IsCorrect ? "word_correct" : "";
-    //int _nNextButtons = 5;
-    //private int nNextButtons
-    //{
-    //    get => dt.Order == Order.Sequental ? _nNextButtons : 0;
-    //}
 
-    public void ClearBuffer()
-    {
-        Storage.RemoveItem("__gloser");
-    }
-
-
+    public void ClearBuffer() => Storage.RemoveItem("__gloser");
+   
 }
 
 
