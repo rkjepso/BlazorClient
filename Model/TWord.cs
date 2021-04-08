@@ -11,6 +11,7 @@ namespace WebGloser.Model
         public int ID { get; set; }
         public string Spanish { get; set; }
         public string English { get; set; }
+        public string Norwegian { get; set; }
         public string FromWord { get; set; }
         public string ToWord { get; set; }
         public string ToWordAns { get; set; }

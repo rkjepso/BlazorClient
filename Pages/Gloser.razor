@@ -131,6 +131,10 @@
             lstWords?.ForEach(o => { o.ToWord = o.English; o.FromWord = o.Spanish; });
         if (dt.LangToFrom == LangToFrom.EngSpa)
             lstWords?.ForEach(o => { o.ToWord = o.Spanish; o.FromWord = o.English; });
+        if (dt.LangToFrom == LangToFrom.SpaNor)
+            lstWords?.ForEach(o => { o.ToWord = o.Norwegian; o.FromWord = o.Spanish; });
+        if (dt.LangToFrom == LangToFrom.NorSpa)
+            lstWords?.ForEach(o => { o.ToWord = o.Spanish; o.FromWord = o.Norwegian; });
     }
 
     // static readonly string _TS = "RecordV1.";
@@ -147,6 +151,9 @@
             LoadParams();
             aWord = await AccountService.GetDefaultDictionary();
             lstWords = aWord?.ToList<TWord>();
+            lstWords.ForEach(o => (o.Norwegian, o.Spanish, o.English)
+                                = (o.Norwegian.ToLower(), o.Spanish.ToLower(), o.English.ToLower()) );
+       
 
             OnLangChoise();
             if (AccountService.IsServerDown)
@@ -349,7 +356,7 @@
         get => lstBatch?.Where(o => o.IsCorrect).Count() ?? 0;
     }
 
-    public int NCorrect 
+    public int NCorrect
     {
         get => lstWords?.Where(o => o.IsCorrect).Count() ?? 0;
     }
@@ -370,7 +377,7 @@
     public string ColCorrect(TWord w) => w.IsCorrect ? "word_correct" : "";
 
     public void ClearBuffer() => Storage.RemoveItem("__gloser");
-   
+
 }
 
 

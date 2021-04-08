@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace BlazorClient.Pages
 {
-    public enum LangToFrom  { EngSpa, SpaEng };
+    public enum LangToFrom  { EngSpa, SpaEng, NorSpa, SpaNor};
     public enum Order       { Sequental, Random, Artif_Int };
     public enum Auto        { Auto500ms = 500, Auto1s = 1000, Auto2s = 2000, Auto3s = 3000, Auto5s = 5000, Manual = 0 };
     public enum Mode        { Scrolling, OneByOne, All_Time, All_Now, All_Man };
@@ -30,7 +30,7 @@ namespace BlazorClient.Pages
         public void Default()
         {
             Mode = ( Mode.OneByOne);
-            LangToFrom = (LangToFrom.EngSpa);
+            LangToFrom = (LangToFrom.SpaNor);
             Order = (Order.Sequental);
             Auto = ( Auto.Auto1s);
             SecThink = 2000;
@@ -74,6 +74,8 @@ namespace BlazorClient.Pages
                 {
                     LangToFrom.EngSpa => "Spanish",
                     LangToFrom.SpaEng => "English",
+                    LangToFrom.NorSpa => "Spanish",
+                    LangToFrom.SpaNor => "Norwegian",
                     _ => ""
                 };
             }
@@ -86,6 +88,8 @@ namespace BlazorClient.Pages
                 {
                     LangToFrom.EngSpa => "English",
                     LangToFrom.SpaEng => "Spanish",
+                    LangToFrom.NorSpa => "Norwegian",
+                    LangToFrom.SpaNor => "Spanish",
                     _ => ""
                 };
             }

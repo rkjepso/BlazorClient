@@ -17,8 +17,8 @@ namespace BlazorClient.Services
         [Inject]
         static  ILocalStorageService Storage { get; set; }
 
-        private readonly static string BaseUrl = @"https://localhost:5000/Gloser/";
-        //private readonly static string BaseUrl = @"https://localhost:44331/Gloser/";
+        //private readonly static string BaseUrl = @"https://localhost:5000/Gloser/";
+        private readonly static string BaseUrl = @"https://localhost:44331/Gloser/";
         //private readonly static string BaseUrl = @"https://webgloser.azurewebsites.net/";
 
         static public bool IsServerDown {get; set;} = false;
@@ -42,7 +42,7 @@ namespace BlazorClient.Services
         static public async Task<TWord[]> GetDefaultDictionary()
         {
             string url = BaseUrl + @"GetDefaultDictionary";
-            string sampleUrl = "sample-data/Spanish.json";
+            string sampleUrl = "sample-data/TEST_JSON_EXCEL.json";
             TWord[] aWord = null;
 
             if (IsServerDown)
