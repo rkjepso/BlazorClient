@@ -42,7 +42,7 @@ namespace BlazorClient.Services
         static public async Task<TWord[]> GetDefaultDictionary()
         {
             string url = BaseUrl + @"GetDefaultDictionary";
-            string sampleUrl = "sample-data/Spanish.json";
+            string sampleUrl = "sample-data/SpanishNor.json";
             TWord[] aWord = null;
 
             if (IsServerDown)
