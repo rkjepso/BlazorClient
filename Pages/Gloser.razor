@@ -64,11 +64,12 @@
     <br />
     <p>@CorrectWordInfo</p>
     <p style="color:brown;font-style:italic">@strMsg</p>
+    <p>Version: @__version</p>
 </body>
 
 @code {
 
-    string __version = "1.6 : " + DateTime.Now.ToString();
+    string __version = "1.8 : " + DateTime.Now.ToString();
     string strMsg    = "";
 
     private List<TWord> lstWords;
