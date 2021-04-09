@@ -358,5 +358,246 @@
     "Spanish": "fin",
     "English": "end",
     "Norwegian": "bli ferdig"
+  },
+  {
+    "ID": 61,
+    "Spanish": "poner",
+    "English": "put",
+    "Norwegian": "sette"
+  },
+  {
+    "ID": 62,
+    "Spanish": "casa",
+    "English": "home",
+    "Norwegian": "hjem"
+  },
+  {
+    "ID": 63,
+    "Spanish": "leer",
+    "English": "read",
+    "Norwegian": "lese"
+  },
+  {
+    "ID": 64,
+    "Spanish": "mano",
+    "English": "hand",
+    "Norwegian": "h\u00E5nd"
+  },
+  {
+    "ID": 65,
+    "Spanish": "puerto",
+    "English": "port",
+    "Norwegian": "havn"
+  },
+  {
+    "ID": 66,
+    "Spanish": "grande",
+    "English": "large",
+    "Norwegian": "stor"
+  },
+  {
+    "ID": 67,
+    "Spanish": "deletrear",
+    "English": "spell",
+    "Norwegian": "staver ut"
+  },
+  {
+    "ID": 68,
+    "Spanish": "a\u00F1adir",
+    "English": "add",
+    "Norwegian": "Legge til"
+  },
+  {
+    "ID": 69,
+    "Spanish": "incluso",
+    "English": "even",
+    "Norwegian": "til og med"
+  },
+  {
+    "ID": 70,
+    "Spanish": "tierra",
+    "English": "land",
+    "Norwegian": "land"
+  },
+  {
+    "ID": 71,
+    "Spanish": "aqu\u00ED",
+    "English": "here",
+    "Norwegian": "her"
+  },
+  {
+    "ID": 72,
+    "Spanish": "debe",
+    "English": "must",
+    "Norwegian": "m\u00E5"
+  },
+  {
+    "ID": 73,
+    "Spanish": "grande",
+    "English": "big",
+    "Norwegian": "stor"
+  },
+  {
+    "ID": 74,
+    "Spanish": "alto",
+    "English": "high",
+    "Norwegian": "h\u00F8y"
+  },
+  {
+    "ID": 75,
+    "Spanish": "tal",
+    "English": "such",
+    "Norwegian": "slik"
+  },
+  {
+    "ID": 76,
+    "Spanish": "siga",
+    "English": "follow",
+    "Norwegian": "F\u00F8lg"
+  },
+  {
+    "ID": 77,
+    "Spanish": "acto",
+    "English": "act",
+    "Norwegian": "handling"
+  },
+  {
+    "ID": 78,
+    "Spanish": "por qu\u00E9",
+    "English": "why",
+    "Norwegian": "Hvorfor"
+  },
+  {
+    "ID": 79,
+    "Spanish": "preguntar",
+    "English": "ask",
+    "Norwegian": "sp\u00F8rre"
+  },
+  {
+    "ID": 80,
+    "Spanish": "hombres",
+    "English": "men",
+    "Norwegian": "mens"
+  },
+  {
+    "ID": 81,
+    "Spanish": "cambio",
+    "English": "change",
+    "Norwegian": "endring"
+  },
+  {
+    "ID": 82,
+    "Spanish": "se fue",
+    "English": "went",
+    "Norwegian": "han gikk bort"
+  },
+  {
+    "ID": 83,
+    "Spanish": "luz",
+    "English": "light",
+    "Norwegian": "lys"
+  },
+  {
+    "ID": 84,
+    "Spanish": "tipo",
+    "English": "kind",
+    "Norwegian": "snill"
+  },
+  {
+    "ID": 85,
+    "Spanish": "fuera",
+    "English": "off",
+    "Norwegian": "utenfor"
+  },
+  {
+    "ID": 86,
+    "Spanish": "necesitar\u00E1",
+    "English": "need",
+    "Norwegian": "vil trenge"
+  },
+  {
+    "ID": 87,
+    "Spanish": "casa",
+    "English": "house",
+    "Norwegian": "hjem"
+  },
+  {
+    "ID": 88,
+    "Spanish": "imagen",
+    "English": "picture",
+    "Norwegian": "bilde"
+  },
+  {
+    "ID": 89,
+    "Spanish": "tratar",
+    "English": "try",
+    "Norwegian": "avtale"
+  },
+  {
+    "ID": 90,
+    "Spanish": "nosotros",
+    "English": "us",
+    "Norwegian": "Vi"
+  },
+  {
+    "ID": 91,
+    "Spanish": "de nuevo",
+    "English": "again",
+    "Norwegian": "en gang til"
+  },
+  {
+    "ID": 92,
+    "Spanish": "animal",
+    "English": "animal",
+    "Norwegian": "dyr"
+  },
+  {
+    "ID": 93,
+    "Spanish": "punto",
+    "English": "point",
+    "Norwegian": "punkt"
+  },
+  {
+    "ID": 94,
+    "Spanish": "madre",
+    "English": "mother",
+    "Norwegian": "mor"
+  },
+  {
+    "ID": 95,
+    "Spanish": "mundo",
+    "English": "world",
+    "Norwegian": "verden"
+  },
+  {
+    "ID": 96,
+    "Spanish": "cerca",
+    "English": "near",
+    "Norwegian": "n\u00E6r"
+  },
+  {
+    "ID": 97,
+    "Spanish": "construir",
+    "English": "build",
+    "Norwegian": "bygge"
+  },
+  {
+    "ID": 98,
+    "Spanish": "auto",
+    "English": "self",
+    "Norwegian": "bil"
+  },
+  {
+    "ID": 99,
+    "Spanish": "tierra",
+    "English": "earth",
+    "Norwegian": "land"
+  },
+  {
+    "ID": 100,
+    "Spanish": "padre",
+    "English": "father",
+    "Norwegian": "pappa"
   }
+
 ]

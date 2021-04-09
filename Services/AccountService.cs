@@ -61,8 +61,6 @@ namespace BlazorClient.Services
             {
                 IsServerDown = true;
                 aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
-                // Save in local storage ....
-                // await Storage.SetItem("_sample_", aWord);
             }   
             return aWord;
         }
