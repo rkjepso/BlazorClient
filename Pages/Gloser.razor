@@ -6,6 +6,12 @@
 @using WebGloser.Model;
 @using System.Timers;
 @using BlazorClient.Services;
+
+@code {
+    string __version = "2.1.0: ";
+}
+
+
 <body style="font-size:14px;background-color:aliceblue">
     <div class="div_gloser">
         <button class="btn-gloser" hidden="@IsRunning" id="btnOnStartBatch" name="btnOnStartBatch" @onclick="OnStartBatch">Start</button>
@@ -68,9 +74,7 @@
 </body>
 
 @code {
-
-    string __version = "2.0 : " + DateTime.Now.ToString();
-    string strMsg    = "";
+    string strMsg = "";
 
     private List<TWord> lstWords;
     private List<TWord> lstBatch = new List<TWord>();
@@ -92,11 +96,11 @@
     private static Gloser __this = null;
     public static Gloser GetGloser() => __this;
 
-    public bool IsRunning       { get => (timerM?.Enabled ?? false) || (timerMsg?.Enabled ?? false); }
-    public bool HideIdTime      { get => (dt.Mode == Mode.All_Man || dt.Mode == Mode.All_Now); }
-    public bool HideNextStop    { get => dt.Auto == Auto.Manual; }
-    public bool SingleMode      { get => dt.NumBatch == 1; }
-    public static bool X        { get => true == true; }
+    public bool IsRunning { get => (timerM?.Enabled ?? false) || (timerMsg?.Enabled ?? false); }
+    public bool HideIdTime { get => (dt.Mode == Mode.All_Man || dt.Mode == Mode.All_Now); }
+    public bool HideNextStop { get => dt.Auto == Auto.Manual; }
+    public bool SingleMode { get => dt.NumBatch == 1; }
+    public static bool X { get => true == true; }
     private void OnSetup() => NavigationManager?.NavigateTo("Setup");
     public string StrAllOk { get => _bAllOk ? "All Ok" : "Non Ok"; }
 
@@ -153,8 +157,8 @@
             aWord = await AccountService.GetDefaultDictionary();
             lstWords = aWord?.ToList<TWord>();
             lstWords.ForEach(o => (o.Norwegian, o.Spanish, o.English)
-                                = (o.Norwegian.ToLower(), o.Spanish.ToLower(), o.English.ToLower()) );
-       
+                                = (o.Norwegian.ToLower(), o.Spanish.ToLower(), o.English.ToLower()));
+
 
             OnLangChoise();
             if (AccountService.IsServerDown)
@@ -363,7 +367,7 @@
     }
 
     static private bool _bAllOk = true;
-    public void OnCorrAll() => lstBatch.ForEach(o => (o.IsCorrect, _bAllOk) = (_bAllOk, !_bAllOk) );
+    public void OnCorrAll() => lstBatch.ForEach(o => (o.IsCorrect, _bAllOk) = (_bAllOk, !_bAllOk));
 
     public void OnCorr(TWord w)
     {
