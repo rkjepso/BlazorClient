@@ -7,18 +7,17 @@
 <div class="card">
     <div class="setup_gloser" style="padding:10px;background-color:lavender;border:dotted">
 
-        <span class="radio_gloser">
-            @foreach (var choice in Enum.GetValues(typeof(LangToFrom)).Cast<LangToFrom>())
-            {
-                <label>
-                    <input name="language" type="radio"
-                           value="@choice"
-                           checked="@(dt.LangToFrom == choice)"
-                           @onchange="@(() => { OnLangChoise(choice) ;})">
-                    @choice.ToString()
-                </label>
-            }
+
+        <span class="span_gloser">
+            <label for="language">Language:</label>
+            <select name="order" id="order" @bind="@dt.LangToFrom">
+                <option value=@LangToFrom.SpaEng>Spanish English</option>
+                <option value=@LangToFrom.EngSpa>English Spanish</option>
+                <option value=@LangToFrom.SpaNor>Spanish Norwegian</option>
+                <option value=@LangToFrom.NorSpa>Norwegian Spanish</option>
+            </select>
         </span>
+
         <span class="span_gloser">
             <label for="order">Order:</label>
             <select name="order" id="order" @bind="@dt.Order">
@@ -29,7 +28,7 @@
         </span>
 
         <span class="span_gloser">
-            <label for="bach">Batch:</label>
+            <label for="bach">Words:</label>
             <select name="batch" id="batch" @bind="@dt.NumBatch">
                 @foreach (var x in new[] { 1, 2, 3, 4, 5, 6, 7, 8, 10, 20 })
                 {
@@ -41,9 +40,31 @@
         <span class="span_gloser">
             <label for="words">Dictionary:</label>
             <select name="words" id="words" @bind="@dt.NTotal">
-                @foreach (var x in new[] { 20, 50, 100, 200, 300, 500, 800 })
+                @foreach (var x in new[] { 100, 200, 300, 500, 800 })
                 {
                     <option value=@x>@x Most Common</option>
+                }
+            </select>
+        </span>
+
+        <span class="span_gloser">
+            <label for="step">Step:</label>
+            <select name="step" id="step" @bind="@dt.Step">
+                @foreach (var x in new[] { 10,25,50,100,200})
+                {
+                    <option value=@x>@x</option>
+                }
+            </select>
+        </span>
+
+        <span class="span_gloser">
+            <label for="words">Sub Dict:</label>
+            <select name="words" id="words" @bind="@dt.IdxStart">
+                <option value=-1>All</option>
+                @foreach (var x in SubTotal)
+                {
+                    int x2 = x + dt.Step;
+                    <option value=@x>@x - @x2</option>
                 }
             </select>
         </span>
@@ -61,7 +82,7 @@
         <span id="_idTime" class="span_gloser" hidden="@HideIdTime">
             <label for="dt.SecThink">Think:</label>
             <select name="dt.SecThink" id="dt.SecThink" @bind="@dt.SecThink">
-                @foreach (var x in new[] {500,1000, 1500,2000,3000,4000,6000,8000})
+                @foreach (var x in new[] { 500, 1000, 1500, 2000, 3000, 4000, 6000, 8000 })
                 {
                     <option value=@x>@x ms</option>
                 }
@@ -85,6 +106,8 @@
 <br />
 <button class="btn-gloserSetup" @onclick="OnSaveAndGloser">Save, Goto Gloser</button>
 <button class="btn-gloserSetup" @onclick="OnSave">Save</button>
+<button class="btn-gloserSetup" @onclick="ClearBuffer">Reset</button>
+
 <h3>@strMsg</h3>
 
 @code {
@@ -108,6 +131,16 @@
 
     //[Parameter]
     //public EventCallback<MouseEventArgs> OnClickCallback { get; set; }
+    public int[] SubTotal
+    {
+        get
+        {
+            List<int> l = new();
+            for (int i=0; i < dt.NTotal; i += Math.Max(10, dt.Step))
+                l.Add(i);
+            return l.ToArray();
+        }
+    }
 
 
 
@@ -147,7 +180,7 @@
     {
         Data tmp = dt;
 
-        Storage.SetItem("__gloser", tmp);
+        await Storage.SetItem("__gloser", tmp);
         await Task.Delay(100);
         Data tmp2 = await Storage.GetItem<Data>("__gloser");
 
@@ -163,4 +196,12 @@
         OnSave();
         NavigationManager.NavigateTo("Gloser");
     }
+
+    public void ClearBuffer()
+    {
+        Storage.RemoveItem("__gloser");
+        dt.Default();
+        StateHasChanged();
+    }
+
 }

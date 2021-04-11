@@ -26,6 +26,8 @@ namespace BlazorClient.Pages
         public int  SecThink   { get; set; } 
         public int  NumBatch   { get; set; }
         public int  NTotal     { get; set; }
+        public int  IdxStart   { get; set; }
+        public int  Step { get; set; }
 
         public void Default()
         {
@@ -35,7 +37,8 @@ namespace BlazorClient.Pages
             Auto = ( Auto.Auto1s);
             SecThink = 2000;
             NumBatch = 3;
-            NTotal = 50;
+            NTotal = 100;
+            IdxStart = 0;
         }
 
     }
@@ -51,7 +54,7 @@ namespace BlazorClient.Pages
         protected ILocalStorageService Storage { get; set; }
 
         public void SaveParams() => Storage.SetItem("__gloser", dt);
-        public async void LoadParams()
+        public async Task LoadParams()
         {
             try
             {

@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using WebGloser.Model;
 
+using BlazorClient;
 
 namespace BlazorClient.Services
 {
@@ -40,27 +41,39 @@ namespace BlazorClient.Services
         }
 
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         static public async Task<TWord[]> GetDefaultDictionary()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             string url = BaseUrl + @"GetDefaultDictionary";
-            string sampleUrl = "sample-data/Spanish.json";
+            //string sampleUrl = "sample-data/Spanish.json";
             TWord[] aWord = null;
+
+            
 
             if (IsServerDown)
             {
                 // aWord = await Storage.GetItem<TWord[]>("_sample_");
-                aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
-                return aWord;
+                // aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
+                // return aWord;
+                List<TWord> lst = new();
+                aWord = BlazorClient.Misc.FillWords(lst).ToArray();   
             }
          
             try
             {
-                aWord = await Program.Http.GetFromJsonAsync<TWord[]>(url);
+                // aWord = await Program.Http.GetFromJsonAsync<TWord[]>(url);
+                List<TWord> lst = new();
+                BlazorClient.Misc.FillWords(lst);
+                aWord = lst.ToArray();
             }
             catch
             {
                 IsServerDown = true;
-                aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
+                //aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
+                List<TWord> lst = new();
+                BlazorClient.Misc.FillWords(lst);
+                aWord = lst.ToArray();
             }   
             return aWord;
         }
