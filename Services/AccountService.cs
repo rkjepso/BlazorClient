@@ -10,7 +10,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using WebGloser.Model;
 
-using BlazorClient;
+using static BlazorClient.Shared.Misc;
 
 namespace BlazorClient.Services
 {
@@ -57,14 +57,14 @@ namespace BlazorClient.Services
                 // aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
                 // return aWord;
                 List<TWord> lst = new();
-                aWord = BlazorClient.Misc.FillWords(lst).ToArray();   
+                aWord = FillWords(lst).ToArray();   
             }
          
             try
             {
                 // aWord = await Program.Http.GetFromJsonAsync<TWord[]>(url);
                 List<TWord> lst = new();
-                BlazorClient.Misc.FillWords(lst);
+                FillWords(lst);
                 aWord = lst.ToArray();
             }
             catch
@@ -72,7 +72,7 @@ namespace BlazorClient.Services
                 IsServerDown = true;
                 //aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
                 List<TWord> lst = new();
-                BlazorClient.Misc.FillWords(lst);
+                FillWords(lst);
                 aWord = lst.ToArray();
             }   
             return aWord;

@@ -1,11 +1,20 @@
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+
 using WebGloser.Model;
 
-namespace BlazorClient
+namespace BlazorClient.Shared
 {
-    public static class Misc
+    static public class Misc
     {
+        public static List<T> AddMany<T>(this List<T> lstD, List<T> lstS, int idxFirst, int idxLast)
+        {
+            for (int i = idxFirst; i <= idxLast; i++)
+                lstD.Add(lstS[i]);
+            return lstD;
+        }
         static public List<TWord> FillWords(List<TWord> lst)
         {
             lst.Add(new TWord { ID = 1, Spanish = "como", English = "as", Norwegian = "som" });
@@ -146,7 +155,7 @@ namespace BlazorClient
             lst.Add(new TWord { ID = 136, Spanish = "bajo", English = "low", Norwegian = "under" });
             lst.Add(new TWord { ID = 137, Spanish = "línea", English = "line", Norwegian = "linje" });
             lst.Add(new TWord { ID = 138, Spanish = "ser distinto", English = "differ", Norwegian = "avviker" });
-            lst.Add(new TWord { ID = 139, Spanish = "a su vez", English="turn", Norwegian = "vende" });
+            lst.Add(new TWord { ID = 139, Spanish = "a su vez", English = "turn", Norwegian = "vende" });
             lst.Add(new TWord { ID = 140, Spanish = "causa", English = "cause", Norwegian = "årsaken" });
             lst.Add(new TWord { ID = 141, Spanish = "mucho", English = "much", Norwegian = "mye" });
             lst.Add(new TWord { ID = 142, Spanish = "significará", English = "mean", Norwegian = "vil bety" });
@@ -804,7 +813,7 @@ namespace BlazorClient
             lst.Add(new TWord { ID = 794, Spanish = "imaginar", English = "imagine", Norwegian = "Å forestille seg" });
             lst.Add(new TWord { ID = 795, Spanish = "proporcionar", English = "provide", Norwegian = "gi" });
             lst.Add(new TWord { ID = 796, Spanish = "acuerdo", English = "agree", Norwegian = "avtale" });
-            lst.Add(new TWord { ID = 797, Spanish = "por tanto", English="thus", Norwegian = "thus" });
+            lst.Add(new TWord { ID = 797, Spanish = "por tanto", English = "thus", Norwegian = "thus" });
             lst.Add(new TWord { ID = 798, Spanish = "suave", English = "gentle", Norwegian = "skånsom" });
             lst.Add(new TWord { ID = 799, Spanish = "mujer", English = "woman", Norwegian = "kvinne" });
             lst.Add(new TWord { ID = 800, Spanish = "capitán", English = "captain", Norwegian = "kaptein" });
@@ -966,7 +975,7 @@ namespace BlazorClient
             lst.Add(new TWord { ID = 956, Spanish = "empresa", English = "company", Norwegian = "virksomhet" });
             lst.Add(new TWord { ID = 957, Spanish = "restar", English = "subtract", Norwegian = "trekke fra" });
             lst.Add(new TWord { ID = 958, Spanish = "evento", English = "event", Norwegian = "begivenhet" });
-            lst.Add(new TWord { ID = 959, Spanish = "particular", English="particular", Norwegian = "spesiell" });
+            lst.Add(new TWord { ID = 959, Spanish = "particular", English = "particular", Norwegian = "spesiell" });
             lst.Add(new TWord { ID = 960, Spanish = "acuerdo", English = "deal", Norwegian = "avtale" });
             lst.Add(new TWord { ID = 961, Spanish = "nadar", English = "swim", Norwegian = "å svømme" });
             lst.Add(new TWord { ID = 962, Spanish = "plazo", English = "term", Norwegian = "begrep" });
@@ -1010,7 +1019,6 @@ namespace BlazorClient
             lst.Add(new TWord { ID = 1000, Spanish = "continente", English = "continent", Norwegian = "kontinent" });
             return lst;
         }
+
     }
-
 }
-
