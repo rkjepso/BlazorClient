@@ -57,14 +57,14 @@ namespace BlazorClient.Services
                 // aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
                 // return aWord;
                 List<TWord> lst = new();
-                aWord = FillWords(lst).ToArray();   
+                aWord = BlazorClient.Shared.Misc.FillWords(lst).ToArray();   
             }
          
             try
             {
                 // aWord = await Program.Http.GetFromJsonAsync<TWord[]>(url);
                 List<TWord> lst = new();
-                FillWords(lst);
+                BlazorClient.Shared.Misc.FillWords(lst);
                 aWord = lst.ToArray();
             }
             catch
@@ -72,7 +72,7 @@ namespace BlazorClient.Services
                 IsServerDown = true;
                 //aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
                 List<TWord> lst = new();
-                FillWords(lst);
+                BlazorClient.Shared.Misc.FillWords(lst);
                 aWord = lst.ToArray();
             }   
             return aWord;
