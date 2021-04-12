@@ -37,7 +37,7 @@ namespace BlazorClient.Pages
             Auto = ( Auto.Auto1s);
             SecThink = 2000;
             NumBatch = 3;
-            NTotal = 100;
+            NTotal = 1000;
             IdxStart = 0;
         }
 
