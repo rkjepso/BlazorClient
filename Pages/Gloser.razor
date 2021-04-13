@@ -19,7 +19,6 @@
         <button class="btn-gloser" id="btnOnNextBatch" @onclick="OnNextBatch">Next</button>
         <button class="btn-gloser_long" hidden="@(!IsModeManual)" @onclick="@(()=> @OnShowAll())">@StrToLang</button>
         <button class="btn-gloser" hidden="@(!IsRunning)" @onclick=@(x=>OnAutoNextStop())>Stop</button>
-        @*<button class="btn-gloser" hidden ="@(NoTimer)" "id="_idAutoNextStop" @onclick=@(x=>OnAutoNextStop())>Stop</button>*@
         <button class="btn-gloser_long" hidden="@IsRunning" @onclick="OnSetup">Setup</button>
     </div>
 

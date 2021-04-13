@@ -36,33 +36,38 @@
             </select>
         </span>
 
-        <span class="span_gloser" style="border: 2px solid black; padding:4px;">
-            <label for="words">Dict:</label>
-            <select name="words" id="words" @bind="@dt.NTotal">
-                @foreach (var x in new[] { 1000 })
-                {
-                    <option value=@x>@x Common</option>
-                }
-            </select>
-    
-            <label for="step">Step:</label>
-            <select name="step" id="step" @bind="@dt.Step">
-                @foreach (var x in new[] { 10,25,50,100,200})
-                {
-                    <option value=@x>@x</option>
-                }
-            </select>
+        <div style="border: 2px solid black; padding:4px;">
+            <span class="span_gloser">
+                <label for="words">Dict:</label>
+                <select name="words" id="words" @bind="@dt.NTotal">
+                    @foreach (var x in new[] { 1000 })
+                    {
+                        <option value=@x>@x Common</option>
+                    }
+                </select>
+            </span>
 
-            <label for="words">Sub:</label>
-            <select name="words" id="words" @bind="@dt.IdxStart">
-                <option value=-1>All</option>
-                @foreach (var x in SubTotal)
-                {
-                    int x2 = x + dt.Step;
-                    <option value=@x>@x-@x2</option>
-                }
-            </select>
-        </span>
+            <span class="span_gloser">
+                <label for="step">Step:</label>
+                <select name="step" id="step" @bind="@dt.Step">
+                    @foreach (var x in new[] { 10, 25, 50, 100, 200 })
+                    {
+                        <option value=@x>@x</option>
+                    }
+                </select>
+            </span>
+            <span class="span_gloser">
+                <label for="words">Sub:</label>
+                <select name="words" id="words" @bind="@dt.IdxStart">
+                    <option value=-1>All</option>
+                    @foreach (var x in SubTotal)
+                    {
+                        int x2 = x + dt.Step;
+                        <option value=@x>@x-@x2</option>
+                    }
+                </select>
+            </span>
+        </div>
 
         <span class="span_gloser">
             <label for="mode">Mode:</label>
