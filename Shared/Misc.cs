@@ -11,6 +11,7 @@ namespace BlazorClient.Shared
     {
         public static List<T> AddMany<T>(this List<T> lstD, List<T> lstS, int idxFirst, int idxLast)
         {
+            idxLast = Math.Min(idxLast, lstS.Count-1);
             for (int i = idxFirst; i <= idxLast; i++)
                 lstD.Add(lstS[i]);
             return lstD;

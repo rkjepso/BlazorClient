@@ -25,7 +25,7 @@ namespace BlazorClient.Pages
         public Auto Auto       { get; set; }
         public int  SecThink   { get; set; } 
         public int  NumBatch   { get; set; }
-        public int  NTotal     { get; set; }
+        public int  TotalWords     { get; set; }
         public int  IdxStart   { get; set; }
         public int  Step { get; set; }
 
@@ -37,7 +37,7 @@ namespace BlazorClient.Pages
             Auto = ( Auto.Auto1s);
             SecThink = 2000;
             NumBatch = 3;
-            NTotal = 1000;
+            TotalWords = 1000;
             IdxStart = 0;
         }
 

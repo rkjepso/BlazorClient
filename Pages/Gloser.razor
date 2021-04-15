@@ -1,4 +1,4 @@
-﻿@page "/gloser"
+﻿@page "/gloser/{state}"
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
@@ -10,10 +10,14 @@
 
 @code {
     string __version = "2.6.0: ";
+    [Parameter]
+    public string state { get;set;} = "error";
 }
 
 
 <body style="font-size:14px;background-color:aliceblue">
+    <h1>@state</h1>
+
     <div class="div_gloser">
         <button class="btn-gloser" hidden="@IsRunning" id="btnOnStartBatch" name="btnOnStartBatch" @onclick="OnStartBatch">Start</button>
         <button class="btn-gloser" id="btnOnNextBatch" @onclick="OnNextBatch">Next</button>
@@ -60,8 +64,8 @@
         </table>
     }
     <br />
-    <h5 class="alert-info">@CorrectWordInfo</h5>
-    <h5 class="alert-info">@WordInfo</h5>
+    <h6 class="alert-info">@CorrectWordInfo</h6>
+    <h6 class="badge-light">@WordInfo</h6>
     <h6 style="color:brown;font-style:italic">Message :@strMsg - Version: @__version</h6>
 </body>
 
@@ -84,7 +88,7 @@
     private int randCorr = 0;
 
     int NBMin { get => iWord + 1; }
-    int NBMax { get => Math.Min(NBMin + dt.NumBatch - 1, NTotal); }
+    int NBMax { get => Math.Min(NBMin + dt.NumBatch - 1, TotalWords); }
 
     private static Gloser __this = null;
     public static Gloser GetGloser() => __this;
@@ -99,7 +103,7 @@
     public string StrAllOk { get => _bAllOk ? "All Ok" : "Non Ok"; }
 
 
-    private int NTotal
+    private int TotalWords
     {
         get
         {
@@ -119,7 +123,7 @@
     private string CorrectWordInfo => dt.Order switch
     {
         Order.Sequental =>
-        string.Format("Correct {0} of {1}. Total : {2}", NCorrect, NBMax, NTotal),
+        string.Format("Correct {0} of {1}. Total : {2}", NCorrect, NBMax, TotalWords),
         Order.Random =>
         string.Format("Correct {0} of Total : {1}", (randCorr + NBatchCorrect), randTot),
         _ => ""
@@ -170,10 +174,6 @@
             lstDict.ForEach(o => (o.Norwegian, o.Spanish, o.English)
             = (o.Norwegian.ToLower(), o.Spanish.ToLower(), o.English.ToLower()));
 
-            //int idxStart = dt.IdxStart;
-
-            //for (int i = idxStart; i < idxStart + dt.Step; i++)
-            //    lstWords.Add(lstDict[i]);
             lstWords.AddMany(lstDict, dt.IdxStart, dt.IdxStart+dt.Step-1);
 
             OnLangChoise();
@@ -261,8 +261,8 @@
 
         if (dt.Order == Order.Sequental)
         {
-            int iNew = Math.Min(iWord + dt.NumBatch, NTotal - 1);
-            if (iNew == NTotal - 1)
+            int iNew = Math.Min(iWord + dt.NumBatch, TotalWords - 1);
+            if (iNew == TotalWords - 1)
                 return;
             iWord = iNew;
         }
@@ -295,7 +295,7 @@
         if (dt.Order == Order.Sequental)
         {
             iMin = iWord;
-            iMax = Math.Min(NTotal, iWord + dt.NumBatch);
+            iMax = Math.Min(TotalWords, iWord + dt.NumBatch);
             // foreach (var o in lstWords.Where(o => o.ID > iWord && o.ID <= iMax))
             for (int i = iMin; i < iMax; i++)
                 lstBatch.Add(lstWords[i]);
@@ -307,7 +307,7 @@
             Random r = new Random();
             while (lstBatch?.Count < dt.NumBatch)
             {
-                int idx = r.Next(NTotal - 1);
+                int idx = r.Next(TotalWords - 1);
                 TWord w = lstWords[idx];
                 if (!lstBatch.Exists(o => o.FromWord == w.FromWord))
                     lstBatch.Add(w);

@@ -39,7 +39,7 @@
         <div style="border: 2px solid black; padding:4px;">
             <span class="span_gloser">
                 <label for="words">Dict:</label>
-                <select name="words" id="words" @bind="@dt.NTotal">
+                <select name="words" id="words" @bind="@dt.TotalWords">
                     @foreach (var x in new[] { 1000 })
                     {
                         <option value=@x>@x Common</option>
@@ -104,8 +104,7 @@
 </div>
 
 <br />
-<button class="btn-gloserSetup" @onclick="OnSaveAndGloser">Save, Goto Gloser</button>
-<button class="btn-gloserSetup" @onclick="OnSave">Save</button>
+<button class="btn-gloserSetup" @onclick="OnSaveAndGloser">Save and Goto Practice</button>
 <button class="btn-gloserSetup" @onclick="ClearBuffer">Reset</button>
 
 <h3>@strMsg</h3>
@@ -136,7 +135,7 @@
         get
         {
             List<int> l = new();
-            for (int i=0; i < dt.NTotal; i += Math.Max(10, dt.Step))
+            for (int i=0; i < dt.TotalWords; i += Math.Max(10, dt.Step))
                 l.Add(i);
             return l.ToArray();
         }
@@ -194,7 +193,7 @@
     private void OnSaveAndGloser()
     {
         OnSave();
-        NavigationManager.NavigateTo("Gloser");
+        NavigationManager.NavigateTo("Gloser/Practice");
     }
 
     public void ClearBuffer()
