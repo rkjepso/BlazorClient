@@ -17,13 +17,13 @@
         </li>
 
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="gloser/Practice">
+            <NavLink class="nav-link" href="gloser/Practice" @onclick="HandlePractice" Match="NavLinkMatch.All">
                 <span class="oi oi-list-rich" aria-hidden="true"></span>Practice
             </NavLink>
         </li>
 
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="gloser/Testing">
+            <NavLink class="nav-link" href="gloser/Testing" @onclick="HandleTesting" Match="NavLinkMatch.All">
                 <span class="oi oi-list-rich" aria-hidden="true"></span>Testing
             </NavLink>
         </li>
@@ -47,20 +47,20 @@
         </li>
 
         @*<li class="nav-item px-3">
-            <NavLink class="nav-link" href="Logoff">
-                <span class="oi oi-plus" aria-hidden="true"></span>Logoff
-            </NavLink>
-        </li>*@
+                <NavLink class="nav-link" href="Logoff">
+                    <span class="oi oi-plus" aria-hidden="true"></span>Logoff
+                </NavLink>
+            </li>*@
         @*<li class="nav-item px-3">
-            <NavLink class="nav-link" href="Counter">
-                <span class="oi oi-list-rich" aria-hidden="true"></span>Counter&Test
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>*@
+                <NavLink class="nav-link" href="Counter">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span>Counter&Test
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="fetchdata">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+                </NavLink>
+            </li>*@
     </ul>
 </div>
 
@@ -81,7 +81,8 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    private bool IsHidden {
+    private bool IsHidden
+    {
         get
         {
             __this = this;
@@ -93,6 +94,17 @@
     public void DoStateHasChanged()
     {
         StateHasChanged();
+    }
+
+    @inject NavigationManager NavigationManager;
+    private void HandlePractice()
+    {
+        NavigationManager.NavigateTo("gloser/Practice", true);
+    }
+
+    private void HandleTesting()
+    {
+        NavigationManager.NavigateTo("gloser/Testing", true);
     }
 
 }

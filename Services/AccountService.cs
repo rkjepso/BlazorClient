@@ -42,14 +42,14 @@ namespace BlazorClient.Services
 
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        private static TWord[] aWord = null;
         static public async Task<TWord[]> GetDefaultDictionary()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             string url = BaseUrl + @"GetDefaultDictionary";
             //string sampleUrl = "sample-data/Spanish.json";
-            TWord[] aWord = null;
-
-            
+            if (aWord != null)
+                return aWord;
 
             if (IsServerDown)
             {

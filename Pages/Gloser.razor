@@ -10,8 +10,16 @@
 
 @code {
     string __version = "2.6.0: ";
+    public string _state;
+
     [Parameter]
-    public string state { get;set;} = "error";
+    public string state {
+        get {
+            return _state; }
+        set {
+            _state = value;
+        }
+    }
 }
 
 
@@ -64,9 +72,9 @@
         </table>
     }
     <br />
-    <h6 class="alert-info">@CorrectWordInfo</h6>
     <h6 class="badge-light">@WordInfo</h6>
-    <h6 style="color:brown;font-style:italic">Message :@strMsg - Version: @__version</h6>
+    <h6 class="alert-info">@CorrectWordInfo</h6>
+    <h6 style="color:brown;font-style:italic">@strMsg - Version: @__version</h6>
 </body>
 
 @code {
@@ -123,15 +131,19 @@
     private string CorrectWordInfo => dt.Order switch
     {
         Order.Sequental =>
-        string.Format("Correct {0} of {1}. Total : {2}", NCorrect, NBMax, TotalWords),
-        Order.Random =>
-        string.Format("Correct {0} of Total : {1}", (randCorr + NBatchCorrect), randTot),
+            string.Format("Correct {0} of {1}. Total : {2}", NCorrect, NBMax, TotalWords),
+        Order.Random  =>
+            string.Format("Correct {0} of Total : {1}", (randCorr + NBatchCorrect), randTot),
+        Order.Artif_Int =>
+            string.Format("Remaing words {0}", TotalWords),
         _ => ""
     };
 
     private string WordInfo => dt.Order switch
     {
-        Order.Random =>
+        Order.Artif_Int =>
+            string.Format("AI Mode - remove as you learn"),
+        Order.Random  =>
             string.Format("Random - Using Words from {0} - {1}", dt.IdxStart, dt.IdxStart + dt.Step),
         Order.Sequental =>
             string.Format("Sequental - Showing {0}-{1} (Words {2}-{3})",
@@ -223,8 +235,13 @@
         iWord = 0;
         iBatch = 0;
         _bAllOk = true;
+
+        lstWords.Clear();
+        lstWords.AddMany(lstDict, dt.IdxStart, dt.IdxStart + dt.Step - 1);
+
         lstWords.ForEach(o => o.ToWordAns = "");
         lstWords.ForEach(o => o.IsCorrect = false);
+
         timerM.Stop();
     }
 
@@ -240,7 +257,7 @@
         dt.Mode == Mode.All_Time)
             timerM.Start();
 
-        if (dt.Order == Order.Random)
+        if (dt.Order == Order.Random || dt.Order == Order.Artif_Int)
         {
             randTot = dt.NumBatch;
             randCorr = 0;
@@ -259,6 +276,8 @@
         if (timerM.Enabled)
             timerM.Stop();
 
+
+
         if (dt.Order == Order.Sequental)
         {
             int iNew = Math.Min(iWord + dt.NumBatch, TotalWords - 1);
@@ -267,15 +286,19 @@
             iWord = iNew;
         }
 
-        if (dt.Order == Order.Random)
+        if (dt.Order == Order.Random || dt.Order == Order.Artif_Int)
         {
             randTot += dt.NumBatch;
             randCorr += NBatchCorrect;
-            lstWords.ForEach(o => o.IsCorrect = false);
         }
 
         iBatch = 0;
         CopyToBatch();
+        if (lstWords.Count == 0)
+        {
+            StateHasChanged();
+            return;
+        }
         sec = dt.SecThink;
 
         if (dt.Mode == Mode.All_Now)
@@ -300,14 +323,24 @@
             for (int i = iMin; i < iMax; i++)
                 lstBatch.Add(lstWords[i]);
         }
-        if (dt.Order == Order.Random)
+        if (dt.Order == Order.Random || dt.Order == Order.Artif_Int)
         {
-            lstBatch = new List<TWord>
-                ();
+            if (dt.Order == Order.Artif_Int) // Remove the word that is correct
+                lstWords = lstWords.Where(w => w.IsCorrect == false).ToList();
+
+            lstWords.ForEach(o => o.IsCorrect = false);
+            lstBatch = new List<TWord>();
+            if (lstWords.Count <= dt.NumBatch)
+            {
+                lstBatch.AddMany(lstWords, 0, dt.NumBatch - 1);
+                return;
+            }
+
+
             Random r = new Random();
             while (lstBatch?.Count < dt.NumBatch)
             {
-                int idx = r.Next(TotalWords - 1);
+                int idx = r.Next(TotalWords);
                 TWord w = lstWords[idx];
                 if (!lstBatch.Exists(o => o.FromWord == w.FromWord))
                     lstBatch.Add(w);
@@ -341,10 +374,15 @@
         if (iBatch >= dt.NumBatch)
         {
             timerM.Stop();
+
             if (dt.Auto == Auto.Manual)
                 return;
             timerMsg.PostOnMsg(TimerMsg.Msg.Next);
         }
+
+        // Keep continuing if AI
+        if (dt.Order == Order.Artif_Int && lstWords.Count <= dt.NumBatch)
+            timerMsg.PostOnMsg(TimerMsg.Msg.Next);
     }
 
     void ShowAllTime()
