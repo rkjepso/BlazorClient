@@ -81,7 +81,7 @@
     string strMsg = "";
 
     private List<TWord> lstWords = new();
-    private List<TWord> lstDict = new();
+    private List<TWord> lstDict  = new();
     private List<TWord> lstBatch = new();
 
     private static Timer timerM;
@@ -89,11 +89,11 @@
     private int msInterval = 500;
     private int sec;
 
-    private int iWord = 0;
-    private int iBatch = 0;
+    private int iWord       = 0;
+    private int iBatch      = 0;
 
-    private int randTot = 0;
-    private int randCorr = 0;
+    private int randTot     = 0;
+    private int randCorr    = 0;
 
     int NBMin { get => iWord + 1; }
     int NBMax { get => Math.Min(NBMin + dt.NumBatch - 1, TotalWords); }
@@ -276,8 +276,6 @@
         if (timerM.Enabled)
             timerM.Stop();
 
-
-
         if (dt.Order == Order.Sequental)
         {
             int iNew = Math.Min(iWord + dt.NumBatch, TotalWords - 1);
@@ -312,17 +310,16 @@
     int iMax = 0, iMin = 0;
     void CopyToBatch()
     {
-        lstBatch = new List<TWord>
-            ();
+        lstBatch = new ();
+
         lstWords.ForEach(o => o.ToWordAns = "");
         if (dt.Order == Order.Sequental)
         {
             iMin = iWord;
             iMax = Math.Min(TotalWords, iWord + dt.NumBatch);
-            // foreach (var o in lstWords.Where(o => o.ID > iWord && o.ID <= iMax))
-            for (int i = iMin; i < iMax; i++)
-                lstBatch.Add(lstWords[i]);
+            lstBatch.AddMany(lstWords, iMin, iMax-1);
         }
+
         if (dt.Order == Order.Random || dt.Order == Order.Artif_Int)
         {
             if (dt.Order == Order.Artif_Int) // Remove the word that is correct
@@ -331,12 +328,13 @@
             lstWords.ForEach(o => o.IsCorrect = false);
             lstBatch = new List<TWord>();
             if (lstWords.Count <= dt.NumBatch)
-            {
                 lstBatch.AddMany(lstWords, 0, dt.NumBatch - 1);
-                return;
-            }
+            else
+                AddBatchWithRandomWords();
+        }
 
-
+        void AddBatchWithRandomWords()
+        {
             Random r = new Random();
             while (lstBatch?.Count < dt.NumBatch)
             {
@@ -346,8 +344,8 @@
                     lstBatch.Add(w);
             }
         }
-
     }
+
 
     void OnTimer2(object sender, ElapsedEventArgs e)
     {
@@ -428,6 +426,9 @@
     public void OnCorrAll()
     {
         lstBatch.ForEach(o => o.IsCorrect = _bAllOk);
+        timerM.Stop();
+        timerMsg.Stop();
+        timerMsg.PostOnMsg(TimerMsg.Msg.Next);
         _bAllOk = !_bAllOk;
     }
 
@@ -443,9 +444,6 @@
     }
 
     public string ColCorrect(TWord w) => w.IsCorrect ? "word_correct" : "";
-
-
-
 }
 
 
