@@ -3,6 +3,7 @@
 @using BlazorGloser.Services
 
 @inject NavigationManager NavigationManager
+@using BlazorClient.Model;
 
 <div class="card">
     <div class="setup_gloser" style="padding:3px;background-color:lavender;border:dotted">
@@ -110,7 +111,7 @@
 <h3>@strMsg</h3>
 
 @code {
-    string strMsg { get;set;} = "";
+    string strMsg { get; set; } = "";
 
     [Inject]
     protected ILocalStorageService Storage { get; set; }
@@ -135,7 +136,7 @@
         get
         {
             List<int> l = new();
-            for (int i=0; i < dt.TotalWords; i += Math.Max(10, dt.Step))
+            for (int i = 0; i < dt.TotalWords; i += Math.Max(10, dt.Step))
                 l.Add(i);
             return l.ToArray();
         }

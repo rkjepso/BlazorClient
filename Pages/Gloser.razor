@@ -7,19 +7,27 @@
 @using System.Timers;
 @using BlazorClient.Services;
 @using static BlazorClient.Shared.Misc;
+@using BlazorClient.Model;
 
 @code {
     string __version = "2.6.0: ";
     public string _state;
 
     [Parameter]
-    public string state {
-        get {
-            return _state; }
-        set {
+    public string state
+    {
+        get
+        {
+            return _state;
+        }
+        set
+        {
+            Reset();
             _state = value;
         }
     }
+
+    public string StrStateSav;
 }
 
 
@@ -44,11 +52,8 @@
         <table class="blueTable">
             <thead>
                 <tr>
-                    <th style="width:40%"> @StrFromLang</th>
-                    <th style="width:40%"> @StrToLang </th>
-                    <th hidden="@(SingleMode)">
-                        <button class="btn-gloser" @onclick="@(x=> @OnCorrAll())"> @(StrAllOk) </button>
-                    </th>
+                    <th style="width:45%"> @StrFromLang</th>
+                    <th style="width:55%" @onclick="@(x=> @OnCorrAll())"> @StrToLang </th>
                 </tr>
             </thead>
             <tbody>
@@ -59,10 +64,6 @@
                         <tr style=@("font-size:"+(cz).ToString()+"px")>
                             <td>@w.FromWord</td>
                             <td class=@(ColCorrect(w)) @onclick="@(()=> @OnCorr(w))"> @w.ToWordAns</td>
-                            <td hidden="@(SingleMode)">
-                                <input type="checkbox" id="w.Correct" @bind="w.IsCorrect" />
-                                <label for="@w.IsCorrect">OK</label>
-                            </td>
                         </tr>
                     }
                 }
@@ -81,32 +82,32 @@
     string strMsg = "";
 
     private List<TWord> lstWords = new();
-    private List<TWord> lstDict  = new();
+    private List<TWord> lstDict = new();
     private List<TWord> lstBatch = new();
 
-    private static Timer timerM;
-    private static TimerMsg timerMsg;
+    private Timer timerW;
+    private TimerMsg timerMsg;
     private int msInterval = 500;
     private int sec;
 
-    private int iWord       = 0;
-    private int iBatch      = 0;
+    private int iWord = 0;
+    private int iBatch = 0;
 
-    private int randTot     = 0;
-    private int randCorr    = 0;
+    private int randTot = 0;
+    private int randCorr = 0;
 
     int NBMin { get => iWord + 1; }
-    int NBMax { get => Math.Min(NBMin + dt.NumBatch - 1, TotalWords); }
+    int NBMax { get => Math.Min(NBMin + Cfg.NumBatch - 1, TotalWords); }
 
     private static Gloser __this = null;
     public static Gloser GetGloser() => __this;
 
-    private bool IsModeManual { get => (dt.Mode == Mode.All_Man); }
-    public bool IsRunning { get => (timerM?.Enabled ?? false) || (timerMsg?.Enabled ?? false); }
-    public bool NoTimer { get => (dt.Mode == Mode.All_Man || dt.Mode == Mode.All_Now); }
-    public bool HideNextStop { get => dt.Auto == Auto.Manual; }
-    public bool SingleMode { get => dt.NumBatch == 1; }
-    public static bool X { get => true == true; }
+    private bool IsModeManual { get => (Cfg.Mode == Mode.All_Man); }
+    public bool IsRunning { get => (timerW?.Enabled ?? false) || (timerMsg?.Enabled ?? false); }
+    public bool NoTimer { get => (Cfg.Mode == Mode.All_Man || Cfg.Mode == Mode.All_Now); }
+    public bool HideNextStop { get => Cfg.Auto == Auto.Manual; }
+    public bool SingleMode { get => Cfg.NumBatch == 1; }
+
     private void OnSetup() => NavigationManager?.NavigateTo("Setup");
     public string StrAllOk { get => _bAllOk ? "All Ok" : "Non Ok"; }
 
@@ -120,46 +121,46 @@
     }
 
     private int FontSize() =>
-    dt.NumBatch switch
+    Cfg.NumBatch switch
     {
-        1 => 24,
-        2 or 3 or 4 => 20,
+        1 => 26,
+        2 or 3 or 4 => 24,
         5 or 6 => 18,
         _ => 14
     };
 
-    private string CorrectWordInfo => dt.Order switch
+    private string CorrectWordInfo => Cfg.Order switch
     {
         Order.Sequental =>
-            string.Format("Correct {0} of {1}. Total : {2}", NCorrect, NBMax, TotalWords),
-        Order.Random  =>
+            string.Format("Correct {0} of {1}. Total : {2}", NumberCorrectWords, NBMax, TotalWords),
+        Order.Random =>
             string.Format("Correct {0} of Total : {1}", (randCorr + NBatchCorrect), randTot),
         Order.Artif_Int =>
-            string.Format("Remaing words {0}", TotalWords),
+            string.Format("Remaing words {0} ", TotalWords - NBatchCorrect),
         _ => ""
     };
 
-    private string WordInfo => dt.Order switch
+    private string WordInfo => Cfg.Order switch
     {
         Order.Artif_Int =>
-            string.Format("AI Mode - remove as you learn"),
-        Order.Random  =>
-            string.Format("Random - Using Words from {0} - {1}", dt.IdxStart, dt.IdxStart + dt.Step),
+            string.Format("AI Mode - Remove - Words from {0} - {1}", Cfg.IdxStart, Cfg.IdxStart + Cfg.Step),
+        Order.Random =>
+            string.Format("Random - Using Words from {0} - {1}", Cfg.IdxStart, Cfg.IdxStart + Cfg.Step),
         Order.Sequental =>
             string.Format("Sequental - Showing {0}-{1} (Words {2}-{3})",
-                       dt.IdxStart + iWord + 1, dt.IdxStart + iWord + lstBatch?.Count ?? 0,
-                       dt.IdxStart + 1, dt.IdxStart + dt.Step),
+                       Cfg.IdxStart + iWord + 1, Cfg.IdxStart + iWord + lstBatch?.Count ?? 0,
+                       Cfg.IdxStart + 1, Cfg.IdxStart + Cfg.Step),
         _ => ""
     };
 
-    private void OnLangChoise(LangToFrom? choise = null)
+    private void OnLangChoise()
     {
-        dt.LangToFrom = choise ?? dt.LangToFrom;
+        //    Cfg.LangToFrom = choise ?? Cfg.LangToFrom;
 
         lstWords?.ForEach(o =>
         {
             (o.FromWord, o.ToWord) =
-                dt.LangToFrom switch
+                Cfg.LangToFrom switch
                 {
                     LangToFrom.EngSpa => (o.English, o.Spanish),
                     LangToFrom.SpaEng => (o.Spanish, o.English),
@@ -186,7 +187,7 @@
             lstDict.ForEach(o => (o.Norwegian, o.Spanish, o.English)
             = (o.Norwegian.ToLower(), o.Spanish.ToLower(), o.English.ToLower()));
 
-            lstWords.AddMany(lstDict, dt.IdxStart, dt.IdxStart+dt.Step-1);
+            lstWords.AddMany(lstDict, Cfg.IdxStart, Cfg.IdxStart + Cfg.Step - 1);
 
             OnLangChoise();
             if (AccountService.IsServerDown)
@@ -199,9 +200,9 @@
             OnLangChoise();
         }
 
-        timerM = new Timer();
-        timerM.Elapsed += new ElapsedEventHandler(OnTimer2);
-        timerM.Interval = msInterval;
+        timerW = new Timer();
+        timerW.Elapsed += new ElapsedEventHandler(OnTimerWord);
+        timerW.Interval = msInterval;
 
         timerMsg = new TimerMsg();
         timerMsg.Elapsed += new ElapsedEventHandler(Timer_Msg);
@@ -236,13 +237,15 @@
         iBatch = 0;
         _bAllOk = true;
 
-        lstWords.Clear();
-        lstWords.AddMany(lstDict, dt.IdxStart, dt.IdxStart + dt.Step - 1);
+        lstWords?.Clear();
+        lstWords?.AddMany(lstDict, Cfg.IdxStart, Cfg.IdxStart + Cfg.Step - 1);
 
-        lstWords.ForEach(o => o.ToWordAns = "");
-        lstWords.ForEach(o => o.IsCorrect = false);
+        lstWords?.ForEach(o => o.ToWordAns = "");
+        lstWords?.ForEach(o => o.IsCorrect = false);
+        lstBatch?.Clear();
+        timerW?.Stop();
 
-        timerM.Stop();
+        StateHasChanged();
     }
 
     void OnStartBatch()
@@ -252,20 +255,20 @@
 
         Reset();
 
-        if (dt.Mode == Mode.OneByOne ||
-        dt.Mode == Mode.Scrolling ||
-        dt.Mode == Mode.All_Time)
-            timerM.Start();
+        if (Cfg.Mode == Mode.OneByOne ||
+        Cfg.Mode == Mode.Scrolling ||
+        Cfg.Mode == Mode.All_Time)
+            timerW.Start();
 
-        if (dt.Order == Order.Random || dt.Order == Order.Artif_Int)
+        if (Cfg.Order == Order.Random || Cfg.Order == Order.Artif_Int)
         {
-            randTot = dt.NumBatch;
+            randTot = Cfg.NumBatch;
             randCorr = 0;
         }
 
-        sec = dt.SecThink;
+        sec = Cfg.SecThink;
         CopyToBatch();
-        if (dt.Mode == Mode.All_Now)
+        if (Cfg.Mode == Mode.All_Now)
             ShowAll();
         StateHasChanged();
     }
@@ -273,20 +276,20 @@
     void OnNextBatch()
     {
         _bAllOk = true;
-        if (timerM.Enabled)
-            timerM.Stop();
+        if (timerW.Enabled)
+            timerW.Stop();
 
-        if (dt.Order == Order.Sequental)
+        if (Cfg.Order == Order.Sequental)
         {
-            int iNew = Math.Min(iWord + dt.NumBatch, TotalWords - 1);
+            int iNew = Math.Min(iWord + Cfg.NumBatch, TotalWords - 1);
             if (iNew == TotalWords - 1)
                 return;
             iWord = iNew;
         }
 
-        if (dt.Order == Order.Random || dt.Order == Order.Artif_Int)
+        if (Cfg.Order == Order.Random || Cfg.Order == Order.Artif_Int)
         {
-            randTot += dt.NumBatch;
+            randTot += Cfg.NumBatch;
             randCorr += NBatchCorrect;
         }
 
@@ -297,12 +300,12 @@
             StateHasChanged();
             return;
         }
-        sec = dt.SecThink;
+        sec = Cfg.SecThink;
 
-        if (dt.Mode == Mode.All_Now)
+        if (Cfg.Mode == Mode.All_Now)
             ShowAll();
-        if (dt.Mode == Mode.OneByOne || dt.Mode == Mode.Scrolling || dt.Mode == Mode.All_Time)
-            timerM.Start(); //PostOnMsg(TimerMsg.Msg.Next);
+        if (Cfg.Mode == Mode.OneByOne || Cfg.Mode == Mode.Scrolling || Cfg.Mode == Mode.All_Time)
+            timerW.Start(); //PostOnMsg(TimerMsg.Msg.Next);
         StateHasChanged();
     }
 
@@ -310,25 +313,25 @@
     int iMax = 0, iMin = 0;
     void CopyToBatch()
     {
-        lstBatch = new ();
+        lstBatch = new();
 
         lstWords.ForEach(o => o.ToWordAns = "");
-        if (dt.Order == Order.Sequental)
+        if (Cfg.Order == Order.Sequental)
         {
             iMin = iWord;
-            iMax = Math.Min(TotalWords, iWord + dt.NumBatch);
-            lstBatch.AddMany(lstWords, iMin, iMax-1);
+            iMax = Math.Min(TotalWords, iWord + Cfg.NumBatch);
+            lstBatch.AddMany(lstWords, iMin, iMax - 1);
         }
 
-        if (dt.Order == Order.Random || dt.Order == Order.Artif_Int)
+        if (Cfg.Order == Order.Random || Cfg.Order == Order.Artif_Int)
         {
-            if (dt.Order == Order.Artif_Int) // Remove the word that is correct
+            if (Cfg.Order == Order.Artif_Int) // Remove the word that is correct
                 lstWords = lstWords.Where(w => w.IsCorrect == false).ToList();
 
             lstWords.ForEach(o => o.IsCorrect = false);
             lstBatch = new List<TWord>();
-            if (lstWords.Count <= dt.NumBatch)
-                lstBatch.AddMany(lstWords, 0, dt.NumBatch - 1);
+            if (lstWords.Count <= Cfg.NumBatch)
+                lstBatch.AddMany(lstWords, 0, Cfg.NumBatch - 1);
             else
                 AddBatchWithRandomWords();
         }
@@ -336,7 +339,7 @@
         void AddBatchWithRandomWords()
         {
             Random r = new Random();
-            while (lstBatch?.Count < dt.NumBatch)
+            while (lstBatch?.Count < Cfg.NumBatch)
             {
                 int idx = r.Next(TotalWords);
                 TWord w = lstWords[idx];
@@ -347,13 +350,13 @@
     }
 
 
-    void OnTimer2(object sender, ElapsedEventArgs e)
+    void OnTimerWord(object sender, ElapsedEventArgs e)
     {
-        if (iBatch >= dt.NumBatch)
+        if (iBatch >= Cfg.NumBatch)
             return;
-        if (dt.Mode == Mode.OneByOne || dt.Mode == Mode.Scrolling)
+        if (Cfg.Mode == Mode.OneByOne || Cfg.Mode == Mode.Scrolling)
             OneAtATime();
-        if (dt.Mode == Mode.All_Time)
+        if (Cfg.Mode == Mode.All_Time)
             ShowAllTime();
         StateHasChanged();
     }
@@ -366,20 +369,20 @@
             lstBatch[iBatch].ToWordAns = sec.ToString();
             return;
         }
-        sec = dt.SecThink;
+        sec = Cfg.SecThink;
         lstBatch[iBatch].ToWordAns = lstBatch[iBatch].ToWord;
         iBatch++;
-        if (iBatch >= dt.NumBatch)
+        if (iBatch >= Cfg.NumBatch)
         {
-            timerM.Stop();
+            timerW.Stop();
 
-            if (dt.Auto == Auto.Manual)
+            if (Cfg.Auto == Auto.Manual)
                 return;
             timerMsg.PostOnMsg(TimerMsg.Msg.Next);
         }
 
         // Keep continuing if AI
-        if (dt.Order == Order.Artif_Int && lstWords.Count <= dt.NumBatch)
+        if (Cfg.Order == Order.Artif_Int && lstWords.Count <= Cfg.NumBatch)
             timerMsg.PostOnMsg(TimerMsg.Msg.Next);
     }
 
@@ -393,9 +396,9 @@
             return;
         }
         ShowAll();
-        sec = dt.SecThink;
-        timerM.Stop();
-        if (dt.Auto == Auto.Manual)
+        sec = Cfg.SecThink;
+        timerW.Stop();
+        if (Cfg.Auto == Auto.Manual)
             return;
         timerMsg.PostOnMsg(TimerMsg.Msg.Next);
     }
@@ -403,7 +406,7 @@
     public void OnAutoNextStop()
     {
         timerMsg.Stop();
-        timerM.Stop();
+        timerW.Stop();
         strMsg = "Stopped timers !";
     }
 
@@ -417,7 +420,7 @@
         get => lstBatch?.Where(o => o.IsCorrect).Count() ?? 0;
     }
 
-    public int NCorrect
+    public int NumberCorrectWords
     {
         get => lstWords?.Where(o => o.IsCorrect).Count() ?? 0;
     }
@@ -426,7 +429,7 @@
     public void OnCorrAll()
     {
         lstBatch.ForEach(o => o.IsCorrect = _bAllOk);
-        timerM.Stop();
+        timerW.Stop();
         timerMsg.Stop();
         timerMsg.PostOnMsg(TimerMsg.Msg.Next);
         _bAllOk = !_bAllOk;
