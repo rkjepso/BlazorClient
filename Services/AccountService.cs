@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -51,33 +51,32 @@ namespace BlazorClient.Services
             if (aWord != null)
                 return aWord;
 
+            IsServerDown = true;
             if (IsServerDown)
             {
-                // aWord = await Storage.GetItem<TWord[]>("_sample_");
-                // aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
-                // return aWord;
                 List<TWord> lst = new();
-                aWord = BlazorClient.Shared.Misc.FillWords(lst).ToArray();   
+                aWord = FillWords(lst).ToArray(); 
+                return aWord;
             }
-         
             try
             {
-                // aWord = await Program.Http.GetFromJsonAsync<TWord[]>(url);
-                List<TWord> lst = new();
-                BlazorClient.Shared.Misc.FillWords(lst);
-                aWord = lst.ToArray();
+               aWord = await Program.Http.GetFromJsonAsync<TWord[]>(url);
+               IsServerDown = false;
             }
             catch
-            {
-                IsServerDown = true;
-                //aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
+            {         
                 List<TWord> lst = new();
-                BlazorClient.Shared.Misc.FillWords(lst);
+                FillWords(lst);
                 aWord = lst.ToArray();
             }   
             return aWord;
         }
-
+        //aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);//List<TWord> lst = new();
+        //BlazorClient.Shared.Misc.FillWords(lst);
+        //aWord = lst.ToArray();
+        // aWord = await Storage.GetItem<TWord[]>("_sample_");
+        // aWord = await Program.Http.GetFromJsonAsync<TWord[]>(sampleUrl);
+        // return aWord;
 
         static public async Task<UserRecord> DoLogin(Login login)
         {

@@ -1,4 +1,4 @@
-﻿@page "/gloser/{state}"
+﻿@page "/gloser/{State}"
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
@@ -14,7 +14,7 @@
     public string _state;
 
     [Parameter]
-    public string state
+    public string State
     {
         get
         {
@@ -32,7 +32,7 @@
 
 
 <body style="font-size:14px;background-color:aliceblue">
-    <h1>@state</h1>
+    <h1>@State</h1>
 
     <div class="div_gloser">
         <button class="btn-gloser" hidden="@IsRunning" id="btnOnStartBatch" name="btnOnStartBatch" @onclick="OnStartBatch">Start</button>
@@ -179,9 +179,15 @@
         __this = this;
         TWord[] aWord = null;
         strMsg = __version;
+        InitTimers();
         try
         {
+            strMsg = "Contaction server ...";
+
+            StateHasChanged();
+
             await LoadParams();
+
             aWord = await AccountService.GetDefaultDictionary();
             lstDict = aWord?.ToList<TWord>();
             lstDict.ForEach(o => (o.Norwegian, o.Spanish, o.English)
@@ -192,6 +198,8 @@
             OnLangChoise();
             if (AccountService.IsServerDown)
                 strMsg = "No contact with server, Using Default Dictionary";
+            else
+                strMsg = "Loaded words from server OK.";
 
         }
         catch (Exception e)
@@ -200,14 +208,19 @@
             OnLangChoise();
         }
 
-        timerW = new Timer();
-        timerW.Elapsed += new ElapsedEventHandler(OnTimerWord);
-        timerW.Interval = msInterval;
 
-        timerMsg = new TimerMsg();
-        timerMsg.Elapsed += new ElapsedEventHandler(Timer_Msg);
 
         StateHasChanged();
+
+        void InitTimers()
+        {
+            timerW = new Timer();
+            timerW.Elapsed += new ElapsedEventHandler(OnTimerWord);
+            timerW.Interval = msInterval;
+
+            timerMsg = new TimerMsg();
+            timerMsg.Elapsed += new ElapsedEventHandler(Timer_Msg);
+        }
     }
 
     private class TimerMsg : Timer

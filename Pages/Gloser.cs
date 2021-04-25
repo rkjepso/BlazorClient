@@ -11,11 +11,13 @@ namespace BlazorClient.Pages
 {
     public partial class Gloser 
     {
+        static public readonly string strPageTesting = "Testing";
+
         private static Data _dt = new();
         private static Data _dtTest = new();
         public  static Data Cfg 
         {
-            get => GetGloser()?.state == "Testing" ? _dtTest : _dt;
+            get => GetGloser()?.State == strPageTesting ? _dtTest : _dt;
         }
 
         static public Data GetData() => _dt;

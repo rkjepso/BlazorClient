@@ -1,0 +1,90 @@
+﻿@page "/Tests"
+@using System.Linq;
+@using WebGloser.Model;
+@using BlazorClient.Model;
+@using BlazorGloser.Services;
+@using System.Collections;
+
+
+<h1>Test Lists</h1>
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@if (lst == null)
+{
+    <p><em>Click test to load ... </em></p>
+}
+else
+{
+    <table class="blueTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Score</th>
+                <th>Max</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var w in lst)
+            {
+                <tr>
+                    <td>@w.Dt.ToShortDateString()</td>
+                    <td>@w.Name</td>
+                    <td>@w.Score</td>
+                    <td>@w.MaxScore</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h1>@strMsg</h1>
+@code {
+
+    static ILocalStorageService Storage { get; set; }
+
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    string strMsg;
+
+    private List<Test> lst;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Test[] aTest = await Storage.GetItem<Test[]>("_tests_");
+        lst = aTest.ToList();
+    }
+
+    static public async void AddTest(Test t)
+    {
+        List<Test> lst = new();
+        Test[] aTest = await Storage.GetItem<Test[]>("_tests_");
+        lst = aTest.ToList();
+        Storage.SetItem<Test]>("_tests_");
+
+
+    }
+    //protected async Task Test()
+    //{
+    //    strMsg = "Start!!!";
+
+    //    try
+    //    {
+    //        //GetStringAsync("https://localhost:44331/Gloser/GetDefaultDictionary");
+    //        var aWord = await http.GetFromJsonAsync<TWord[]>("https://localhost:44331/Gloser/GetDefaultDictionary");
+    //        lst = aWord.ToList();
+    //        StateHasChanged();
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        strMsg = e.Message;
+    //    }
+
+    //}
+}
+
+
