@@ -42,6 +42,23 @@ namespace BlazorClient.Pages
             _dtTest.DefaultsForTest();
         }
 
+        public async void AddTest(Test t)
+        {
+            List<Test> lst = new();
+            Test[] aTest;
+            try
+            {
+                aTest = await Storage.GetItem<Test[]>("_tests_");
+                lst = aTest.ToList();
+            }
+            catch (Exception)
+            {
+            }
+
+            lst.Add(t);
+            Storage.SetItemSync<Test[]>("_tests_", lst.ToArray());
+        }
+
         static string StrToLang
         {
             get

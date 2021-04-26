@@ -296,7 +296,12 @@
         {
             int iNew = Math.Min(iWord + Cfg.NumBatch, TotalWords - 1);
             if (iNew == TotalWords - 1)
+            {
+                if (State==strPageTesting)
+                    OnReportTest();
                 return;
+            }
+
             iWord = iNew;
         }
 
@@ -458,6 +463,18 @@
         if (int.TryParse(w.ToWordAns, out tmp) == false)
             w.IsCorrect = !w.IsCorrect;
     }
+
+    private void OnReportTest()
+    {
+        Test t = new();
+        t.Dt = DateTime.Now;
+        t.Name = string.Format("Words {0} - {1}", iMin, iMax);
+        t.Score = NumberCorrectWords;
+        t.MaxScore = lstWords.Count;
+        AddTest(t);
+    }
+
+
 
     public string ColCorrect(TWord w) => w.IsCorrect ? "word_correct" : "";
 }

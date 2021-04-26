@@ -43,7 +43,8 @@ namespace BlazorClient.Model
             Mode = (Mode.OneByOne);
             Order = (Order.Sequental);
             NumBatch = 5;
-            SecThink = 2000;
+            Step = 10;
+            SecThink = 500;
         }
 
     }

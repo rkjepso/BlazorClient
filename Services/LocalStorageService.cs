@@ -7,8 +7,10 @@ namespace BlazorGloser.Services
     public interface ILocalStorageService
     {
         Task<T> GetItem<T>(string key);
-        Task SetItem<T>(string key, T value);
+        Task SetItem<T>(string key, T value);    
         Task RemoveItem(string key);
+
+        void SetItemSync<T>(string key, T value);
     }
 
     public class LocalStorageService : ILocalStorageService
@@ -31,6 +33,14 @@ namespace BlazorGloser.Services
             string jsonStr = JsonSerializer.Serialize(value);
              await 
             _jsr.InvokeVoidAsync("localStorage.setItem", key, jsonStr) ;
+        }
+
+
+
+        public void SetItemSync<T>(string key, T value)
+        {
+            string jsonStr = JsonSerializer.Serialize(value);
+           _jsr.InvokeVoidAsync("localStorage.setItem", key, jsonStr);
         }
 
         public async Task RemoveItem(string key)
