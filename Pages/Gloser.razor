@@ -39,6 +39,7 @@
         <button class="btn-gloser" id="btnOnNextBatch" @onclick="OnNextBatch">Next</button>
         <button class="btn-gloser_long" hidden="@(!IsModeManual)" @onclick="@(()=> @OnShowAll())">@StrToLang</button>
         <button class="btn-gloser" hidden="@(!IsRunning)" @onclick=@(x=>OnAutoNextStop())>Stop</button>
+        <button class="btn-gloser" hidden="@(!IsTesting)" @onclick=@(x=>OnSaveTest())>Save</button>
         <button class="btn-gloser_long" hidden="@IsRunning" @onclick="OnSetup">Setup</button>
     </div>
 
@@ -75,20 +76,28 @@
     <br />
     <h6 class="badge-light">@WordInfo</h6>
     <h6 class="alert-info">@CorrectWordInfo</h6>
-    <h6 style="color:brown;font-style:italic">@strMsg - Version: @__version</h6>
+    <h6 style="color:brown;font-style:italic">@StrMsg - Version: @__version</h6>
 </body>
 
 @code {
-    string strMsg = "";
+    private string _strMsg;
+    public string StrMsg {
+        get => _strMsg;
+        set {
+            _strMsg = value;
+            StateHasChanged();
+        }
+    }
 
     private List<TWord> lstWords = new();
     private List<TWord> lstDict = new();
     private List<TWord> lstBatch = new();
 
     private Timer timerW;
-    private TimerMsg timerMsg;
+    private TimerNextMsg timerMsgNext;
     private int msInterval = 500;
     private int sec;
+    private string StrSave { get;set;}
 
     private int iWord = 0;
     private int iBatch = 0;
@@ -103,7 +112,10 @@
     public static Gloser GetGloser() => __this;
 
     private bool IsModeManual { get => (Cfg.Mode == Mode.All_Man); }
-    public bool IsRunning { get => (timerW?.Enabled ?? false) || (timerMsg?.Enabled ?? false); }
+    public bool IsRunning { get => (timerW?.Enabled ?? false) || (timerMsgNext?.Enabled ?? false); }
+
+    public bool IsTesting {  get =>  State=="Testing" && IsRunning;}
+
     public bool NoTimer { get => (Cfg.Mode == Mode.All_Man || Cfg.Mode == Mode.All_Now); }
     public bool HideNextStop { get => Cfg.Auto == Auto.Manual; }
     public bool SingleMode { get => Cfg.NumBatch == 1; }
@@ -178,11 +190,11 @@
 
         __this = this;
         TWord[] aWord = null;
-        strMsg = __version;
+        StrMsg = __version;
         InitTimers();
         try
         {
-            strMsg = "Contaction server ...";
+            StrMsg = "Contaction server ...";
 
             StateHasChanged();
 
@@ -197,14 +209,14 @@
 
             OnLangChoise();
             if (AccountService.IsServerDown)
-                strMsg = "No contact with server, Using Default Dictionary";
+                StrMsg = "No contact with server, Using Default Dictionary";
             else
-                strMsg = "Loaded words from server OK.";
+                StrMsg = "Loaded words from server OK.";
 
         }
         catch (Exception e)
         {
-            strMsg = "Error - unable to connect to the Server : " + e.Message;
+            StrMsg = "Error - unable to connect to the Server : " + e.Message;
             OnLangChoise();
         }
 
@@ -218,29 +230,54 @@
             timerW.Elapsed += new ElapsedEventHandler(OnTimerWord);
             timerW.Interval = msInterval;
 
-            timerMsg = new TimerMsg();
-            timerMsg.Elapsed += new ElapsedEventHandler(Timer_Msg);
+            timerMsgNext = new TimerNextMsg();
+            timerMsgNext.Elapsed += new ElapsedEventHandler(Timer_NextMsg);
         }
     }
 
-    private class TimerMsg : Timer
+    private class TimerNextMsg : Timer
     {
         public enum Msg { Start, Next };
         public Msg _msg;
+        private Timer _timerInternal = null;
+        private int _msInternal = 0;
         public void PostOnMsg(Msg msg)
         {
             _msg = msg;
             Interval = msg == Msg.Start ? 10 : (int)Gloser.GetData().Auto;
             Start();
+
+            _msInternal = 0;
+
+            _timerInternal?.Stop();
+            _timerInternal = new();
+            _timerInternal.Interval = 500;
+            _timerInternal.Elapsed += new ElapsedEventHandler(_OnTimer);
+            _timerInternal.Start();
+        }
+
+        public void DoStop()
+        {
+            base.Stop();
+            _timerInternal.Stop();
+            _timerInternal = null;
+            _msInternal = 0;
+        }
+
+        private void _OnTimer(object o, ElapsedEventArgs e)
+        {
+            _msInternal += (int)_timerInternal.Interval;
+            Gloser.GetGloser().StrMsg = "Next page in .. " + (Interval - _msInternal).ToString();
         }
     }
 
-    void Timer_Msg(object o, ElapsedEventArgs e)
+    void Timer_NextMsg(object o, ElapsedEventArgs e)
     {
-        timerMsg.Stop();
-        if (timerMsg._msg == TimerMsg.Msg.Next)
+
+        timerMsgNext.DoStop();
+        if (timerMsgNext._msg == TimerNextMsg.Msg.Next)
             OnNextBatch();
-        if (timerMsg._msg == TimerMsg.Msg.Start)
+        if (timerMsgNext._msg == TimerNextMsg.Msg.Start)
             OnStartBatch();
     }
 
@@ -297,8 +334,7 @@
             int iNew = Math.Min(iWord + Cfg.NumBatch, TotalWords - 1);
             if (iNew == TotalWords - 1)
             {
-                if (State==strPageTesting)
-                    OnReportTest();
+
                 return;
             }
 
@@ -396,12 +432,12 @@
 
             if (Cfg.Auto == Auto.Manual)
                 return;
-            timerMsg.PostOnMsg(TimerMsg.Msg.Next);
+            timerMsgNext.PostOnMsg(TimerNextMsg.Msg.Next);
         }
 
         // Keep continuing if AI
         if (Cfg.Order == Order.Artif_Int && lstWords.Count <= Cfg.NumBatch)
-            timerMsg.PostOnMsg(TimerMsg.Msg.Next);
+            timerMsgNext.PostOnMsg(TimerNextMsg.Msg.Next);
     }
 
     void ShowAllTime()
@@ -418,14 +454,14 @@
         timerW.Stop();
         if (Cfg.Auto == Auto.Manual)
             return;
-        timerMsg.PostOnMsg(TimerMsg.Msg.Next);
+        timerMsgNext.PostOnMsg(TimerNextMsg.Msg.Next);
     }
 
     public void OnAutoNextStop()
     {
-        timerMsg.Stop();
+        timerMsgNext.DoStop();
         timerW.Stop();
-        strMsg = "Stopped timers !";
+        StrMsg = "Stopped timers !";
     }
 
     void OnShowAll() => ShowAll();
@@ -448,8 +484,8 @@
     {
         lstBatch.ForEach(o => o.IsCorrect = _bAllOk);
         timerW.Stop();
-        timerMsg.Stop();
-        timerMsg.PostOnMsg(TimerMsg.Msg.Next);
+        timerMsgNext.DoStop();
+        timerMsgNext.PostOnMsg(TimerNextMsg.Msg.Next);
         _bAllOk = !_bAllOk;
     }
 
@@ -464,17 +500,16 @@
             w.IsCorrect = !w.IsCorrect;
     }
 
-    private void OnReportTest()
+    private void OnSaveTest()
     {
         Test t = new();
         t.Dt = DateTime.Now;
         t.Name = string.Format("Words {0} - {1}", iMin, iMax);
         t.Score = NumberCorrectWords;
         t.MaxScore = lstWords.Count;
+        StrMsg = "Test has been saved";
         AddTest(t);
     }
-
-
 
     public string ColCorrect(TWord w) => w.IsCorrect ? "word_correct" : "";
 }

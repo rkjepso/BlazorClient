@@ -4,47 +4,62 @@
 @using BlazorClient.Model;
 @using BlazorGloser.Services;
 
-
-
 <h1>Test Lists</h1>
-<button class="btn btn-primary" @onclick="ClearAll">Clear</button>
-
+<link rel="stylesheet" href=@StrStyle>
 @if (lst == null)
 {
     <p><em>Loading ... </em></p>
 }
 else
 {
-    <table class="blueTable">
+    <table class="reportTable">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Name</th>
-                <th>Score</th>
+                <th width="40%">Date</th>
+                <th width="40%">Name</th>
                 <th>Max</th>
+                <th>Score</th>
+
             </tr>
         </thead>
         <tbody>
-            @foreach (var w in lst)
+            @foreach (var w in lst.OrderByDescending(t => t.Dt))
             {
                 <tr>
-                    <td>@w.Dt.Date + @w.Dt.TimeOfDay</td>
+                    <td>@w.Dt.ToShortDateString()+@w.Dt.ToShortTimeString()</td>
                     <td>@w.Name</td>
                     <td>@w.Score</td>
                     <td>@w.MaxScore</td>
+
                 </tr>
             }
         </tbody>
     </table>
 }
+<br />
+
+<button class="btn btn-gloser_long" @onclick="ClearAll">Clear</button>
 
 <h5>@strMsg</h5>
 @code {
 
     [Inject]
     private ILocalStorageService Storage { get; set; }
+    private string StrStyle
+    {
+        get
+        {
+            return AppendRnd("css/Tables.css");
 
-    //private int currentCount = 0;
+        }
+    }
+
+    private string AppendRnd(string sf)
+    {
+        Random r = new Random();
+        string str = sf + @"?xxx=" + r.Next(DateTime.Now.Millisecond);
+        return str;
+    }
 
     private void ClearAll()
     {
@@ -64,17 +79,13 @@ else
             Test[] aTest = await Storage.GetItem<Test[]>("_tests_");
             lst = aTest.ToList();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             strMsg = e.Message;
         }
-
         StateHasChanged();
-
     }
-
-
-
 }
+
 
 

@@ -29,7 +29,7 @@
         </li>
 
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="Tests" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" href="Tests" @onclick="HandleReport" Match="NavLinkMatch.All">
                 <span class="oi oi-list-rich" aria-hidden="true"></span>Show Tests
             </NavLink>
         </li>
@@ -113,4 +113,8 @@
         NavigationManager.NavigateTo("gloser/Testing", false);
     }
 
+    private void HandleReport()
+    {
+        NavigationManager.NavigateTo("Tests", false);
+    }
 }

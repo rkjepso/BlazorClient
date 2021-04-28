@@ -15,7 +15,12 @@ namespace BlazorClient
     {
         static public HttpClient Http { get; set; }
         static public bool IsLoggedIn { get; set; } = false;
-     
+        static public bool Br
+        {
+            get;
+            set;
+        } = true;
+
 
         public static async Task Main(string[] args)
         {
