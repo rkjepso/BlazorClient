@@ -126,10 +126,7 @@
 
     private int TotalWords
     {
-        get
-        {
-            return lstWords?.Count ?? 0;
-        }
+        get => lstWords?.Count ?? 0;
     }
 
     private int FontSize() =>
@@ -220,8 +217,6 @@
             OnLangChoise();
         }
 
-
-
         StateHasChanged();
 
         void InitTimers()
@@ -259,7 +254,7 @@
         public void DoStop()
         {
             base.Stop();
-            _timerInternal.Stop();
+            _timerInternal?.Stop();
             _timerInternal = null;
             _msInternal = 0;
         }
@@ -273,7 +268,6 @@
 
     void Timer_NextMsg(object o, ElapsedEventArgs e)
     {
-
         timerMsgNext.DoStop();
         if (timerMsgNext._msg == TimerNextMsg.Msg.Next)
             OnNextBatch();
@@ -319,7 +313,7 @@
         sec = Cfg.SecThink;
         CopyToBatch();
         if (Cfg.Mode == Mode.All_Now)
-            ShowAll();
+            ShowAllWords();
         StateHasChanged();
     }
 
@@ -334,10 +328,8 @@
             int iNew = Math.Min(iWord + Cfg.NumBatch, TotalWords - 1);
             if (iNew == TotalWords - 1)
             {
-
                 return;
             }
-
             iWord = iNew;
         }
 
@@ -357,18 +349,16 @@
         sec = Cfg.SecThink;
 
         if (Cfg.Mode == Mode.All_Now)
-            ShowAll();
+            ShowAllWords();
         if (Cfg.Mode == Mode.OneByOne || Cfg.Mode == Mode.Scrolling || Cfg.Mode == Mode.All_Time)
             timerW.Start(); //PostOnMsg(TimerMsg.Msg.Next);
         StateHasChanged();
     }
 
-
     int iMax = 0, iMin = 0;
     void CopyToBatch()
     {
         lstBatch = new();
-
         lstWords.ForEach(o => o.ToWordAns = "");
         if (Cfg.Order == Order.Sequental)
         {
@@ -429,12 +419,10 @@
         if (iBatch >= Cfg.NumBatch)
         {
             timerW.Stop();
-
             if (Cfg.Auto == Auto.Manual)
                 return;
             timerMsgNext.PostOnMsg(TimerNextMsg.Msg.Next);
         }
-
         // Keep continuing if AI
         if (Cfg.Order == Order.Artif_Int && lstWords.Count <= Cfg.NumBatch)
             timerMsgNext.PostOnMsg(TimerNextMsg.Msg.Next);
@@ -449,7 +437,7 @@
             iBatch = 0;
             return;
         }
-        ShowAll();
+        ShowAllWords();
         sec = Cfg.SecThink;
         timerW.Stop();
         if (Cfg.Auto == Auto.Manual)
@@ -464,10 +452,9 @@
         StrMsg = "Stopped timers !";
     }
 
-    void OnShowAll() => ShowAll();
+    void OnShowAll() => ShowAllWords();
 
-    void ShowAll() => lstBatch.ForEach(o => o.ToWordAns = o.ToWord);
-
+    void ShowAllWords() => lstBatch.ForEach(o => o.ToWordAns = o.ToWord);
 
     public int NBatchCorrect
     {
@@ -489,7 +476,6 @@
         _bAllOk = !_bAllOk;
     }
 
-
     public void OnCorr(TWord w)
     {
         int tmp;
@@ -510,9 +496,46 @@
         StrMsg = "Test has been saved";
         AddTest(t);
     }
-
     public string ColCorrect(TWord w) => w.IsCorrect ? "word_correct" : "";
 }
 
+
+<style>
+    table.blueTable {
+        border: 3px solid black; /* #1C6EA4;*/
+        background-color: #EEEEEE;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+        padding: 10px;
+    }
+
+    table.blueTable td, table.blueTable th {
+        border: 1px solid black; /*#AAAAAA;*/
+        padding: 1px 1px;
+        width: 33%;
+    }
+
+    table.blueTable tr:nth-child(even) {
+        background: #E2F4F5;
+    }
+
+    table.blueTable thead {
+        background: #1C6EA4;
+        background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+        background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+        background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+        border-bottom: 2px solid #444444;
+        width: 33%;
+    }
+    table.blueTable thead th {
+        font-weight: bold;
+        color: #FFFFFF;
+        border-left: 2px solid #D0E4F5;
+    }
+    table.blueTable thead th:first-child {
+        border-left: none;
+    }
+</style>
 
 
