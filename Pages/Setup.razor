@@ -105,7 +105,7 @@
 </div>
 
 <br />
-<button class="btn-gloserSetup" @onclick="OnSaveAndGloser">Save and Goto Practice</button>
+<button class="btn-gloserSetup" @onclick="OnSaveAndGloser">Save</button>
 <button class="btn-gloserSetup" @onclick="ClearBuffer">Reset</button>
 
 <h3>@strMsg</h3>
@@ -122,7 +122,7 @@
     // [Parameter]
     // private Gloser g = Gloser.GetGloser();
     // private static Data dt = Gloser.GetData();
-    static Data dt = Gloser.GetData();
+    private Data dt = default; // { get; set;}
 
 
     [Parameter]
@@ -142,25 +142,24 @@
         }
     }
 
-
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // dt = Storage.GetData();
         if (!firstRender)
             return;
 
         await LoadParams();
         StateHasChanged();
-
     }
 
-    public async Task LoadParams()
+    private async Task LoadParams()
     {
         try
         {
-            dt = await Storage.GetItem<Data>("__gloser");
-            if (dt.Equals(default(Data)))
-                dt.Default();
+            //dt = await Storage.GetItem<Data>("__gloser");
+            //if (dt.Equals(default(Data)))
+            //    dt.Default();
+            dt = Storage.GetData();
         }
         catch (Exception)
         {
@@ -170,19 +169,19 @@
 
     }
 
-    private void OnLangChoise(LangToFrom lang)
-    {
-        dt.LangToFrom = lang;
-
-    }
+    //private void OnLangChoise(LangToFrom lang)
+    //{
+    //    dt.LangToFrom = lang;
+    //}
 
     private async void OnSave()
     {
         Data tmp = dt;
 
-        await Storage.SetItem("__gloser", tmp);
+        Storage.SetData(dt);
+
         await Task.Delay(100);
-        Data tmp2 = await Storage.GetItem<Data>("__gloser");
+        Data tmp2 = Storage.GetData();
 
         if (tmp2.Equals(tmp))
             strMsg = "Save Successfull";
@@ -194,7 +193,7 @@
     private void OnSaveAndGloser()
     {
         OnSave();
-        NavigationManager.NavigateTo("Gloser/Practice");
+        //NavigationManager.NavigateTo("Gloser/Practice");
     }
 
     public void ClearBuffer()

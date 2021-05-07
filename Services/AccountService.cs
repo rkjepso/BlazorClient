@@ -20,8 +20,8 @@ namespace BlazorClient.Services
         static  ILocalStorageService Storage { get; set; }
 
         //private readonly static string BaseUrl = @"https://localhost:5000/Gloser/";
-        private readonly static string BaseUrl = @"https://localhost:44331/Gloser/";
-        //private readonly static string BaseUrl = @"https://webgloser.azurewebsites.net/";
+        //private readonly static string BaseUrl = @"https://localhost:44331/Gloser/";
+        private readonly static string BaseUrl = @"84.214.39.194:81/Gloser/";
 
         static public bool IsServerDown {get; set;} = false;
 
@@ -51,13 +51,14 @@ namespace BlazorClient.Services
             if (aWord != null)
                 return aWord;
 
-            IsServerDown = true;
+           
             if (IsServerDown)
             {
                 List<TWord> lst = new();
                 aWord = FillWords(lst).ToArray(); 
                 return aWord;
             }
+            IsServerDown = true;
             try
             {
                aWord = await Program.Http.GetFromJsonAsync<TWord[]>(url);

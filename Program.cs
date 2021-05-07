@@ -30,7 +30,7 @@ namespace BlazorClient
             builder.Services.
                 AddScoped(sp => Http = new HttpClient 
                 { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
-                .AddScoped<ILocalStorageService, LocalStorageService>();
+                .AddSingleton<ILocalStorageService, LocalStorageService>();
 
 
             await builder.Build().RunAsync();

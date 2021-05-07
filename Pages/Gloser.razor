@@ -1,4 +1,6 @@
-﻿@page "/gloser/{State}"
+﻿@*@page "/gloser/{State}"*@
+@page "/gloser"
+
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
@@ -13,33 +15,33 @@
     string __version = "2.6.0: ";
     public string _state;
 
-    [Parameter]
-    public string State
-    {
-        get
-        {
-            return _state;
-        }
-        set
-        {
-            Reset();
-            _state = value;
-        }
-    }
+    //[Parameter]
+    //public string State
+    //{
+    //    get
+    //    {
+    //        return _state;
+    //    }
+    //    set
+    //    {
+    //        Reset();
+    //        _state = value;
+    //    }
+    //}
 
     public string StrStateSav;
 }
 
 
 <body style="font-size:14px;background-color:aliceblue">
-    <h1>@State</h1>
+    @*<h1>@State</h1>*@
 
     <div class="div_gloser">
         <button class="btn-gloser" hidden="@IsRunning" id="btnOnStartBatch" name="btnOnStartBatch" @onclick="OnStartBatch">Start</button>
         <button class="btn-gloser" id="btnOnNextBatch" @onclick="OnNextBatch">Next</button>
         <button class="btn-gloser_long" hidden="@(!IsModeManual)" @onclick="@(()=> @OnShowAll())">@StrToLang</button>
         <button class="btn-gloser" hidden="@(!IsRunning)" @onclick=@(x=>OnAutoNextStop())>Stop</button>
-        <button class="btn-gloser" hidden="@(!IsTesting)" @onclick=@(x=>OnSaveTest())>Save</button>
+        @*<button class="btn-gloser" hidden="@(!IsTesting)" @onclick=@(x=>OnSaveTest())>Save</button>*@
         <button class="btn-gloser_long" hidden="@IsRunning" @onclick="OnSetup">Setup</button>
     </div>
 
@@ -81,9 +83,11 @@
 
 @code {
     private string _strMsg;
-    public string StrMsg {
+    public string StrMsg
+    {
         get => _strMsg;
-        set {
+        set
+        {
             _strMsg = value;
             StateHasChanged();
         }
@@ -97,7 +101,7 @@
     private TimerNextMsg timerMsgNext;
     private int msInterval = 500;
     private int sec;
-    private string StrSave { get;set;}
+    private string StrSave { get; set; }
 
     private int iWord = 0;
     private int iBatch = 0;
@@ -114,7 +118,7 @@
     private bool IsModeManual { get => (Cfg.Mode == Mode.All_Man); }
     public bool IsRunning { get => (timerW?.Enabled ?? false) || (timerMsgNext?.Enabled ?? false); }
 
-    public bool IsTesting {  get =>  State=="Testing" && IsRunning;}
+    //public bool IsTesting { get => State == "Testing" && IsRunning; }
 
     public bool NoTimer { get => (Cfg.Mode == Mode.All_Man || Cfg.Mode == Mode.All_Now); }
     public bool HideNextStop { get => Cfg.Auto == Auto.Manual; }
@@ -164,8 +168,6 @@
 
     private void OnLangChoise()
     {
-        //    Cfg.LangToFrom = choise ?? Cfg.LangToFrom;
-
         lstWords?.ForEach(o =>
         {
             (o.FromWord, o.ToWord) =
@@ -194,9 +196,6 @@
             StrMsg = "Contaction server ...";
 
             StateHasChanged();
-
-            await LoadParams();
-
             aWord = await AccountService.GetDefaultDictionary();
             lstDict = aWord?.ToList<TWord>();
             lstDict.ForEach(o => (o.Norwegian, o.Spanish, o.English)
@@ -206,7 +205,7 @@
 
             OnLangChoise();
             if (AccountService.IsServerDown)
-                StrMsg = "No contact with server, Using Default Dictionary";
+                StrMsg = "No contact with server Sir, Using Default Dictionary";
             else
                 StrMsg = "Loaded words from server OK.";
 
@@ -239,7 +238,7 @@
         public void PostOnMsg(Msg msg)
         {
             _msg = msg;
-            Interval = msg == Msg.Start ? 10 : (int)Gloser.GetData().Auto;
+            Interval = msg == Msg.Start ? 10 : (int)Gloser.GetGloser().Cfg.Auto;
             Start();
 
             _msInternal = 0;
@@ -466,7 +465,7 @@
         get => lstWords?.Where(o => o.IsCorrect).Count() ?? 0;
     }
 
-    static private bool _bAllOk = true;
+    private bool _bAllOk = true;
     public void OnCorrAll()
     {
         lstBatch.ForEach(o => o.IsCorrect = _bAllOk);
@@ -510,32 +509,34 @@
         padding: 10px;
     }
 
-    table.blueTable td, table.blueTable th {
-        border: 1px solid black; /*#AAAAAA;*/
-        padding: 1px 1px;
-        width: 33%;
-    }
+        table.blueTable td, table.blueTable th {
+            border: 1px solid black; /*#AAAAAA;*/
+            padding: 1px 1px;
+            width: 33%;
+        }
 
-    table.blueTable tr:nth-child(even) {
-        background: #E2F4F5;
-    }
+        table.blueTable tr:nth-child(even) {
+            background: #E2F4F5;
+        }
 
-    table.blueTable thead {
-        background: #1C6EA4;
-        background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-        background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-        background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-        border-bottom: 2px solid #444444;
-        width: 33%;
-    }
-    table.blueTable thead th {
-        font-weight: bold;
-        color: #FFFFFF;
-        border-left: 2px solid #D0E4F5;
-    }
-    table.blueTable thead th:first-child {
-        border-left: none;
-    }
+        table.blueTable thead {
+            background: #1C6EA4;
+            background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+            background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+            background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+            border-bottom: 2px solid #444444;
+            width: 33%;
+        }
+
+            table.blueTable thead th {
+                font-weight: bold;
+                color: #FFFFFF;
+                border-left: 2px solid #D0E4F5;
+            }
+
+                table.blueTable thead th:first-child {
+                    border-left: none;
+                }
 </style>
 
 

@@ -13,34 +13,38 @@ namespace BlazorClient.Pages
     {
         static public readonly string strPageTesting = "Testing";
 
-        private static Data _dt = new();
-        private static Data _dtTest = new();
-        public  static Data Cfg 
-        {
-            get => GetGloser()?.State == strPageTesting ? _dtTest : _dt;
-        }
+    
 
-        static public Data GetData() => _dt;
-  
+        //static public Data GetData() => _dt;
+        //static public Data GetData() => _dt;
+
         [Inject]
         protected ILocalStorageService Storage { get; set; }
 
-        public void SaveParams() => Storage.SetItem("__gloser", _dt);
-        public async Task LoadParams()
+        //private static Data _dt = new();
+        //private static Data _dtTest = new();
+        private Data Cfg
         {
-            try
-            {
-                _dt = await Storage.GetItem<Data>("__gloser");
-                if (_dt.Equals(default(Data)))
-                    _dt.Default();
-            }
-            catch (Exception)
-            {
-                _dt.Default();
-            }
-            _dtTest = _dt;
-            _dtTest.DefaultsForTest();
+            //get => GetGloser()?.State == strPageTesting ? _dtTest : _dt;
+            get => Storage.GetData();
         }
+
+        // public void SaveParams() => Storage.SetItem("__gloser", _dt);
+        //public async Task LoadParams()
+        //{
+        //    try
+        //    {
+        //        _dt = await Storage.GetItem<Data>("__gloser");
+        //        if (_dt.Equals(default(Data)))
+        //            _dt.Default();
+        //    }
+        //    catch (Exception)
+        //    {
+        //        _dt.Default();
+        //    }
+        //    _dtTest = _dt;
+        //    _dtTest.DefaultsForTest();
+        //}
 
         public async void AddTest(Test t)
         {
@@ -59,7 +63,7 @@ namespace BlazorClient.Pages
             Storage.SetItemSync<Test[]>("_tests_", lst.ToArray());
         }
 
-        static string StrToLang
+        private string StrToLang
         {
             get
             {
@@ -73,7 +77,7 @@ namespace BlazorClient.Pages
                 };
             }
         }
-        static string StrFromLang
+        private string StrFromLang
         {
             get
             {
