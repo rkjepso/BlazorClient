@@ -22,7 +22,7 @@ namespace BlazorGloser.Services
     {
         private readonly IJSRuntime _jsr;
 
-        private Data _dt = new Data();
+        private Data _dt = new ();
 
         public LocalStorageService(IJSRuntime jsRuntime)
         {

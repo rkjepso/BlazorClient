@@ -13,20 +13,23 @@ namespace BlazorClient.Pages
     {
         static public readonly string strPageTesting = "Testing";
 
-    
-
         //static public Data GetData() => _dt;
         //static public Data GetData() => _dt;
 
         [Inject]
         protected ILocalStorageService Storage { get; set; }
 
+        Data dtTest = default;
         //private static Data _dt = new();
         //private static Data _dtTest = new();
         private Data Cfg
         {
-            //get => GetGloser()?.State == strPageTesting ? _dtTest : _dt;
-            get => Storage.GetData();
+            get {
+                if (GetGloser()?.State == strPageTesting)
+                    return dtTest.DefaultsForTest();
+                else
+                    return Storage.GetData();
+            }
         }
 
         // public void SaveParams() => Storage.SetItem("__gloser", _dt);

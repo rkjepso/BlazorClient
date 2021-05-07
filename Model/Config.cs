@@ -38,13 +38,15 @@ namespace BlazorClient.Model
             Step = 25;
         }
 
-        public void DefaultsForTest()
+        public Data DefaultsForTest()
         {
+            Default();
             Mode = (Mode.OneByOne);
             Order = (Order.Sequental);
             NumBatch = 5;
             Step = 10;
             SecThink = 500;
+            return this;
         }
 
     }

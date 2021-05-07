@@ -1,5 +1,5 @@
-﻿@*@page "/gloser/{State}"*@
-@page "/gloser"
+﻿@page "/gloser/{State}"
+@*@page "/gloser"*@
 
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
@@ -15,33 +15,33 @@
     string __version = "2.6.0: ";
     public string _state;
 
-    //[Parameter]
-    //public string State
-    //{
-    //    get
-    //    {
-    //        return _state;
-    //    }
-    //    set
-    //    {
-    //        Reset();
-    //        _state = value;
-    //    }
-    //}
+    [Parameter]
+    public string State
+    {
+        get
+        {
+            return _state;
+        }
+        set
+        {
+            Reset();
+            _state = value;
+        }
+    }
 
     public string StrStateSav;
 }
 
 
 <body style="font-size:14px;background-color:aliceblue">
-    @*<h1>@State</h1>*@
+    <h1>@State</h1>
 
     <div class="div_gloser">
         <button class="btn-gloser" hidden="@IsRunning" id="btnOnStartBatch" name="btnOnStartBatch" @onclick="OnStartBatch">Start</button>
         <button class="btn-gloser" id="btnOnNextBatch" @onclick="OnNextBatch">Next</button>
         <button class="btn-gloser_long" hidden="@(!IsModeManual)" @onclick="@(()=> @OnShowAll())">@StrToLang</button>
         <button class="btn-gloser" hidden="@(!IsRunning)" @onclick=@(x=>OnAutoNextStop())>Stop</button>
-        @*<button class="btn-gloser" hidden="@(!IsTesting)" @onclick=@(x=>OnSaveTest())>Save</button>*@
+        <button class="btn-gloser" hidden="@(!IsTesting)" @onclick=@(x=>OnSaveTest())>Save</button>
         <button class="btn-gloser_long" hidden="@IsRunning" @onclick="OnSetup">Setup</button>
     </div>
 
@@ -118,7 +118,7 @@
     private bool IsModeManual { get => (Cfg.Mode == Mode.All_Man); }
     public bool IsRunning { get => (timerW?.Enabled ?? false) || (timerMsgNext?.Enabled ?? false); }
 
-    //public bool IsTesting { get => State == "Testing" && IsRunning; }
+    public bool IsTesting { get => State == "Testing" && IsRunning; }
 
     public bool NoTimer { get => (Cfg.Mode == Mode.All_Man || Cfg.Mode == Mode.All_Now); }
     public bool HideNextStop { get => Cfg.Auto == Auto.Manual; }

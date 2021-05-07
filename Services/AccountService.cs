@@ -16,8 +16,8 @@ namespace BlazorClient.Services
 {
     static class AccountService 
     {
-        [Inject]
-        static  ILocalStorageService Storage { get; set; }
+        //[Inject]
+        //static  ILocalStorageService Storage { get; set; }
 
         //private readonly static string BaseUrl = @"https://localhost:5000/Gloser/";
         //private readonly static string BaseUrl = @"https://localhost:44331/Gloser/";
